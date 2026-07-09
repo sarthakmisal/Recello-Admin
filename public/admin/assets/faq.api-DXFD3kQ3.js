@@ -1,0 +1,1 @@
+import{v as s}from"./index-Bt07uBzV.js";const p=()=>s.get("/api/faqs"),o=a=>s.post("/api/faqs",a),q=(a,t)=>s.put(`/api/faqs/${a}`,t),c=a=>s.delete(`/api/faqs/${a}`);export{o as c,c as d,p as g,q as u};

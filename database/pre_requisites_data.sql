@@ -66,7 +66,7 @@ BEGIN;
 		('listing_status','inspection_complete'),
 		('listing_status','renegotiating'),
 		('listing_status','completed'),
-		('listing_status','cancelled');
+		('listing_status','cancelled'),
 		('inspection_status','started'),
 		('inspection_status','completed'),
 		('inspection_status','cancelled'),
