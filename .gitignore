@@ -1,0 +1,34 @@
+# BACKEND
+# dependencies
+node_modules/
+
+# env files
+.env
+# .env.*
+
+# logs
+logs/
+database/backup/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# build / temp (optional but safe)
+dist/
+build/
+
+uploads/*
+!uploads/.gitkeep
+frontend/*
+frontend
+public/
+
+*.zip
+middlewares.zip
+# package locks (ignore if you want manual control)
+package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
