@@ -8,7 +8,7 @@ const { Pool } = require("pg");
 //    port: process.env.DB_PORT || 5432,
 //  });
 
-pool.createConnection({
+const pool = new Pool({
   connectionString: process.env.DATABASE_URL
 });
 
