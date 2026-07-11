@@ -232,10 +232,7 @@ exports.getActiveBanners = async (req, res) => {
       ORDER BY sort_order ASC
     `);
 
-    res.json({
-      success: true,
-      data: result.rows,
-    });
+    res.json(result.rows);
 
   } catch (error) {
     console.error("GET ACTIVE BANNERS ERROR:", error);
