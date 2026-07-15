@@ -31,8 +31,15 @@ const allowedOrigins = [
   "https://recello.in"
 ]
 
+// app.use(cors({
+//   origin: allowedOrigins,
+//   credentials: true
+// }));
+
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    callback(null, true);
+  },
   credentials: true
 }));
 
