@@ -162,7 +162,7 @@ exports.resendOTP = async (data) => {
     if (existing.rows[0].attempts > 2) {
         throw { status: 429, message: "Please Request new OTP" }
     }
-    // await this.sendSMS({ otp: existing.rows[0].otp_hash, phone: phone });
+    await this.sendSMS({ otp: existing.rows[0].otp_hash, phone: phone });
 
     return { message: "OTP Re-sent", id };
 }
@@ -196,7 +196,7 @@ exports.requestOTP = async (data) => {
     if (!otp) throw { status: 500, message: "Error generating OTP" };
 
     
-    // await this.sendSMS({ otp: otp, phone: phone });
+    await this.sendSMS({ otp: otp, phone: phone });
     return { message: "OTP sent", id }; // Remove otp in production
 };
 exports.sendSMS = async (data) => {
