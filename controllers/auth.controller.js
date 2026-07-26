@@ -60,3 +60,17 @@ exports.initiateAuth = async (req, res) => {
   // res.clearCookie("refreshToken");
   res.status(200).json(result);
 };
+
+
+exports.getAccountDeleteStatus = async (req, res) => {
+  const result = await authService.getAccountDeleteStatus(req.user);
+  // res.clearCookie("refreshToken");
+  res.status(200).json(result);
+};
+
+exports.accountDelete = async (req, res) => {
+  req.body.user = req.user;
+  const result = await authService.accountDelete(req.body);
+  // res.clearCookie("refreshToken");
+  res.status(200).json(result);
+};

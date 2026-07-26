@@ -430,6 +430,15 @@ BEGIN;
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
+	CREATE TABLE request_deletion(
+		id SERIAL PRIMARY KEY,
+		user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+		reason TEXT NOT NULL,
+		status INT NOT NULL DEFAULT 1, -- request_deletion_status | new approved rejected
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		UNIQUE(user_id)
+	);
 COMMIT;
 
 -- FOR LATER USE - override deductions brands/model wise

@@ -8,28 +8,28 @@ const fs = require("fs");
 const path = require('path');
 
 const app = express();
-const allowedOrigins = [
-  // Local/LAN dev (Vite)
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "http://127.0.0.1:5173",
-  "http://localhost:8100",
-  "http://127.0.0.1:8100",
-  "http://127.0.0.1:3000",
-  "http://192.168.1.19:5173",
-  "http://10.195.223.133:5173",
-  "http://192.168.1.31:5173",
-  "http://192.168.1.31:3000",
-  "http://192.168.1.40:3000",
+// const allowedOrigins = [
+//   // Local/LAN dev (Vite)
+//   "http://localhost:5173",
+//   "http://localhost:3000",
+//   "http://127.0.0.1:5173",
+//   "http://localhost:8100",
+//   "http://127.0.0.1:8100",
+//   "http://127.0.0.1:3000",
+//   "http://192.168.1.19:5173",
+//   "http://10.195.223.133:5173",
+//   "http://192.168.1.31:5173",
+//   "http://192.168.1.31:3000",
+//   "http://192.168.1.40:3000",
 
-  // Production
-  "http://recello.thecanatech.com",
-  "https://recello.thecanatech.com",
-  "http://dev.recello.in",
-  "https://dev.recello.in",
-  "http://recello.in",
-  "https://recello.in"
-]
+//   // Production
+//   "http://recello.thecanatech.com",
+//   "https://recello.thecanatech.com",
+//   "http://dev.recello.in",
+//   "https://dev.recello.in",
+//   "http://recello.in",
+//   "https://recello.in"
+// ]
 
 // app.use(cors({
 //   origin: allowedOrigins,

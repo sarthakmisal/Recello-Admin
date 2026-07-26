@@ -16,4 +16,7 @@ router.get('/me', authMiddleware, authController.me);
 
 router.post("/initiate", reqBody, authController.initiateAuth);
 
+router.get("/account_delete", authMiddleware,authController.getAccountDeleteStatus);
+router.post("/account_delete", authMiddleware, reqBody, authController.accountDelete);
+
 module.exports = router;
