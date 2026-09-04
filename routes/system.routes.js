@@ -61,6 +61,12 @@ router.get('/get_roles', systemController.getRoles)
 // Dashboard
 router.get('/dashboard_summary', systemController.getDashboardSummary)
 
+router.get('/quick-sell', systemController.getQuickSell)
+router.post('/quick-sell', reqBody, systemController.createQuickSell)
+router.put('/quick-sell/:id', reqBody, systemController.updateQuickSell)
+router.patch('/quick-sell/:id/status', reqBody, systemController.toggleQuickSell)
+router.delete('/quick-sell/:id', systemController.deleteQuickSell)
+
 
 router.get('/series/:brand_slug', systemController.getModelSeries)
 router.post('/series', reqBody, systemController.createSeries)
@@ -70,6 +76,8 @@ router.delete('/series/:id', systemController.deleteSeries)
 // get_model_series/:brand_slug
 // /create_series',
 
+router.get('/get_models', systemController.getAllModels)
+router.get('/get_models/:brand_slug', systemController.getModelsByBrand)
 router.get('/get_models/:cat_slug/:brand_slug/:series_slug', systemController.getModels)
 router.post('/models', upload.single('image'), reqBody, systemController.createModel)
 router.put('/models/:id', upload.single('image'), reqBody, systemController.updateModel)

@@ -1285,6 +1285,7 @@ exports.getOrders = async (user) => {
     SELECT 
     CONCAT('#KSM-000', sl.id) AS order_id,
     b.name brand,
+    i.url image_url,
     m.name model,
     sl.base_price,
     sl.expected_price,
@@ -1294,6 +1295,8 @@ exports.getOrders = async (user) => {
     FROM sell_listings sl
     JOIN brands b ON sl.brand_id=b.id
     JOIN models m ON sl.model_id=m.id
+    LEFT JOIN model_images mi ON m.id=mi.model_id
+    LEFT JOIN images i ON mi.image_id=i.id
     JOIN enum_master em ON sl.status=em.id AND em.master_name='listing_status' 
     WHERE sl.user_id=$1 ORDER BY sl.created_at DESC`, [user.userId]);
     return result.rows || [];

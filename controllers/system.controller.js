@@ -159,6 +159,48 @@ exports.getModels = async (req, res) => {
     res.status(200).json(data);
 }
 
+exports.getModelsByBrand = async (req, res) => {
+    const data = await systemService.getModelsByBrand(req.params);
+    res.status(200).json(data);
+}
+
+exports.getAllModels = async (req, res) => {
+    const data = await systemService.getAllModels();
+    res.status(200).json(data);
+}
+
+exports.getQuickSell = async (req, res) => {
+    const data = await systemService.getQuickSell(req.query);
+    res.status(200).json(data);
+}
+
+exports.createQuickSell = async (req, res) => {
+    const data = await systemService.createQuickSell(req.body);
+    res.status(200).json(data);
+}
+
+exports.updateQuickSell = async (req, res) => {
+    const { id } = req.params;
+    if (!id) throw { status: 400, message: 'ID is required' };
+    const data = await systemService.updateQuickSell(id, req.body);
+    res.status(200).json(data);
+}
+
+exports.deleteQuickSell = async (req, res) => {
+    const { id } = req.params;
+    if (!id) throw { status: 400, message: 'ID is required' };
+    const data = await systemService.deleteQuickSell(id);
+    res.status(200).json(data);
+}
+
+exports.toggleQuickSell = async (req, res) => {
+    const { id } = req.params;
+    if (!id) throw { status: 400, message: 'ID is required' };
+    const { status } = req.body;
+    const data = await systemService.toggleQuickSell(id, status);
+    res.status(200).json(data);
+}
+
 exports.createModel = async (req, res) => {
     // console.log(req.body)
     req.body.image = req.file ? req.file.filename : null;

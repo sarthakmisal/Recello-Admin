@@ -303,7 +303,7 @@ exports.getBrands = async ({ cat_slug, all }) => {
         left join model_series ms on b.id=ms.brand_id and ms.status=1
         ${whquery}
         group by b.id, img.url
-        ORDER BY b.id
+        ORDER BY b.updated_at desc
         `);
     // data.rows.map(b => b.route = `/product/brand/${b.slug}/products`)
     return data.rows;
@@ -668,7 +668,7 @@ exports.updateBrand = async (id, data) => {
             const slug = slugify(name, { lower: true, strict: true });
             const val = await client.query("SELECT 1 ans FROM brands WHERE slug=$1 AND id!=$2", [slug, id]);
             if (val.rowCount >= 1) throw { status: 409, message: "Brand with this name already Exists" }
-            await client.query("UPDATE brands SET name=$1, slug=$2 WHERE id=$3", [name, slug, id]);
+            await client.query("UPDATE brands SET name=$1, slug=$2, updated_at=NOW() WHERE id=$3", [name, slug, id]);
         }
 
         if (category_id) {
@@ -829,6 +829,209 @@ exports.getModels = async ({ cat_slug, brand_slug, series_slug }) => {
         WHERE c.slug=$1 AND b.slug=$2 AND ms.slug=$3`, [cat_slug, brand_slug, series_slug]);
     return data.rows;
 }
+exports.getModelsByBrand = async ({ brand_slug }) => {
+    if (!brand_slug) throw { status: 404, message: "Brand Slug is required" };
+    const data = await pool.query(`
+        SELECT m.id, m.name, m.slug, img.url FROM models m
+        JOIN brands b ON m.brand_id=b.id
+        LEFT JOIN model_images mi ON m.id=mi.model_id
+        LEFT JOIN images img ON mi.image_id=img.id
+        WHERE b.slug=$1`, [brand_slug]);
+    return data.rows;
+}
+
+exports.getAllModels = async () => {
+    const data = await pool.query(`
+        SELECT DISTINCT m.id, m.name, m.slug, b.id as brand_id, b.name as brand_name, img.url as image_url
+        FROM models m
+        JOIN brands b ON m.brand_id=b.id
+        LEFT JOIN model_images mi ON m.id=mi.model_id
+        LEFT JOIN images img ON mi.image_id=img.id
+        ORDER BY b.name, m.name`);
+    return data.rows;
+}
+
+const getQuickSellRowById = async (client, id) => {
+    const result = await client.query(`
+        SELECT
+            qs.id,
+            qs.model_id,
+            qs.config_id,
+            qs.base_price,
+            qs.sort_index,
+            qs.is_active,
+            m.name AS model_name,
+            m.slug AS model_slug,
+            b.name AS brand_name,
+            b.slug AS brand_slug,
+            img.url AS model_url,
+            cfg.name AS config_name,
+            cfg.base_price AS config_base_price,
+            cfg.is_active AS config_active
+        FROM model_quick_sell qs
+        JOIN models m ON qs.model_id = m.id
+        JOIN brands b ON m.brand_id = b.id
+        LEFT JOIN sell_model_configs cfg ON qs.config_id = cfg.id
+        LEFT JOIN model_images mi ON m.id = mi.model_id
+        LEFT JOIN images img ON mi.image_id = img.id
+        WHERE qs.id = $1
+    `, [id]);
+
+    return result.rows[0] || null;
+};
+
+exports.getQuickSell = async ({ all, limit } = {}) => {
+    const includeAll = String(all).toLowerCase() === 'true' || all === true || all === 1 || all === '1';
+    const maxLimit = Number.parseInt(limit, 10);
+    const limitClause = !includeAll && Number.isFinite(maxLimit) && maxLimit > 0 ? ` LIMIT ${maxLimit}` : '';
+    const whereClause = includeAll ? '' : 'WHERE qs.is_active = TRUE';
+
+    const data = await pool.query(`
+        SELECT
+            qs.id,
+            qs.model_id,
+            qs.config_id,
+            qs.base_price,
+            qs.sort_index,
+            qs.is_active,
+            m.name AS model_name,
+            m.slug AS model_slug,
+            b.name AS brand_name,
+            b.slug AS brand_slug,
+            img.url AS model_url,
+            cfg.name AS config_name,
+            cfg.base_price AS config_base_price,
+            cfg.is_active AS config_active
+        FROM model_quick_sell qs
+        JOIN models m ON qs.model_id = m.id
+        JOIN brands b ON m.brand_id = b.id
+        LEFT JOIN sell_model_configs cfg ON qs.config_id = cfg.id
+        LEFT JOIN model_images mi ON m.id = mi.model_id
+        LEFT JOIN images img ON mi.image_id = img.id
+        ${whereClause}
+        ORDER BY qs.sort_index ASC, qs.id DESC
+        ${limitClause}
+    `);
+
+    return data.rows;
+};
+
+exports.createQuickSell = async (data = {}) => {
+    const modelId = Number(data.model_id);
+    const configId = data.config_id ? Number(data.config_id) : null;
+    const sortIndex = Number.isFinite(Number(data.sort_index)) ? Number(data.sort_index) : 1;
+    const isActive = data.is_active === true || data.is_active === 'true' || data.is_active === 1 || data.is_active === '1';
+    const providedBasePrice = data.base_price !== undefined && data.base_price !== null && data.base_price !== ''
+        ? Number(data.base_price)
+        : null;
+
+    if (!modelId) throw { status: 400, message: 'Model is required' };
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        const modelCheck = await client.query('SELECT id FROM models WHERE id=$1', [modelId]);
+        if (modelCheck.rowCount === 0) throw { status: 404, message: 'Model not found' };
+
+        let configRow = null;
+        if (configId) {
+            const cfgCheck = await client.query('SELECT id, base_price FROM sell_model_configs WHERE id=$1 AND model_id=$2', [configId, modelId]);
+            if (cfgCheck.rowCount === 0) throw { status: 404, message: 'Config not found for this model' };
+            configRow = cfgCheck.rows[0];
+        }
+
+        const basePrice = Number.isFinite(providedBasePrice)
+            ? providedBasePrice
+            : Number(configRow?.base_price ?? 0);
+        const maxSortIndex= await client.query('SELECT COALESCE(MAX(sort_index), 0) AS max_sort FROM model_quick_sell');
+        const nextSortIndex = maxSortIndex.rows[0].max_sort + 1;
+        // console.log('Creating Quick Sell entry:', { modelId, configId, basePrice, nextSortIndex, isActive }, maxSortIndex.rows);
+        const insert = await client.query(`
+            INSERT INTO model_quick_sell(model_id, config_id, base_price, sort_index, is_active)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id
+        `, [modelId, configId, basePrice, nextSortIndex, true]);
+
+        await client.query('COMMIT');
+        return await getQuickSellRowById(client, insert.rows[0].id);
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw { status: error.status || 500, message: error.message || 'Failed to create Quick Sell entry' };
+    } finally {
+        client.release();
+    }
+};
+
+exports.updateQuickSell = async (id, data = {}) => {
+    if (!id) throw { status: 400, message: 'ID is required' };
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        const existing = await client.query('SELECT * FROM model_quick_sell WHERE id=$1', [id]);
+        if (existing.rowCount === 0) throw { status: 404, message: 'Quick Sell entry not found' };
+
+        const modelId = data.model_id !== undefined && data.model_id !== null && data.model_id !== '' ? Number(data.model_id) : existing.rows[0].model_id;
+        const configId = data.config_id !== undefined && data.config_id !== null && data.config_id !== '' ? Number(data.config_id) : existing.rows[0].config_id;
+        const sortIndex = data.sort_index !== undefined && data.sort_index !== null && data.sort_index !== '' ? Number(data.sort_index) : existing.rows[0].sort_index;
+        const maxSortIndex= await client.query('SELECT COALESCE(MAX(sort_index), 0) AS max_sort FROM model_quick_sell');
+        const nextSortIndex = maxSortIndex.rows[0].max_sort + 1;
+        const isActive = data.is_active !== undefined
+            ? (data.is_active === true || data.is_active === 'true' || data.is_active === 1 || data.is_active === '1')
+            : existing.rows[0].is_active;
+        const providedBasePrice = data.base_price !== undefined && data.base_price !== null && data.base_price !== ''
+            ? Number(data.base_price)
+            : null;
+
+        const modelCheck = await client.query('SELECT id FROM models WHERE id=$1', [modelId]);
+        if (modelCheck.rowCount === 0) throw { status: 404, message: 'Model not found' };
+
+        let configBasePrice = null;
+        if (configId) {
+            const cfgCheck = await client.query('SELECT id, base_price FROM sell_model_configs WHERE id=$1 AND model_id=$2', [configId, modelId]);
+            if (cfgCheck.rowCount === 0) throw { status: 404, message: 'Config not found for this model' };
+            configBasePrice = cfgCheck.rows[0].base_price;
+        }
+
+        const nextBasePrice = Number.isFinite(providedBasePrice)
+            ? providedBasePrice
+            : Number(configBasePrice ?? existing.rows[0].base_price ?? 0);
+
+        await client.query(`
+            UPDATE model_quick_sell
+               SET model_id=$1,
+                   config_id=$2,
+                   base_price=$3,
+                   sort_index=$4,
+                   is_active=$5
+             WHERE id=$6
+        `, [modelId, configId, nextBasePrice, nextSortIndex, isActive, id]);
+
+        await client.query('COMMIT');
+        return await getQuickSellRowById(client, id);
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw { status: error.status || 500, message: error.message || 'Failed to update Quick Sell entry' };
+    } finally {
+        client.release();
+    }
+};
+
+exports.deleteQuickSell = async (id) => {
+    if (!id) throw { status: 400, message: 'ID is required' };
+    const result = await pool.query('DELETE FROM model_quick_sell WHERE id=$1 RETURNING id', [id]);
+    if (result.rowCount === 0) throw { status: 404, message: 'Quick Sell entry not found' };
+    return result.rows[0];
+};
+
+exports.toggleQuickSell = async (id, status) => {
+    const isActive = String(status).toLowerCase() === 'true' || status === true || status === 1 || status === '1';
+    const result = await pool.query(`UPDATE model_quick_sell SET is_active=$1 WHERE id=$2 RETURNING id, is_active`, [isActive, id]);
+    if (result.rowCount === 0) throw { status: 404, message: 'Quick Sell entry not found' };
+    return result.rows[0];
+};
 
 exports.createModel = async ({ name, cat_slug, brand_slug, series_slug, image }) => {
     // const { name, cat_id, brand_id, series_id } = data
