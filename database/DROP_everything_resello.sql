@@ -38,6 +38,7 @@ BEGIN;
  	DROP TABLE IF EXISTS faqs CASCADE;
  	DROP TABLE IF EXISTS sell_listing_answers CASCADE;
  	DROP TABLE IF EXISTS sell_option_deduction_rates CASCADE;
+ 	DROP TABLE IF EXISTS model_quick_sell CASCADE;
 COMMIT;
 	-- DROP TABLE IF EXISTS category_attributes CASCADE ;
 -- ROLLBACK;

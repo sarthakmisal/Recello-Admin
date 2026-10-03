@@ -68,7 +68,8 @@ BEGIN;
 		id BIGSERIAL PRIMARY KEY,
 		name VARCHAR(50) NOT NULL,
 		slug VARCHAR(50) NOT NULL UNIQUE,
-		status INT DEFAULT 1    -- brand_model_status | active inactive deprecated
+		status INT DEFAULT 1,    -- brand_model_status | active inactive deprecated
+		updated_at TIMESTAMP DEFAULT NOW()
 	);
 	CREATE TABLE categories(
 		id BIGSERIAL PRIMARY KEY,
@@ -114,7 +115,15 @@ BEGIN;
 		image_id BIGINT REFERENCES images(id) ON DELETE CASCADE,
 		PRIMARY KEY (model_id, image_id)
 	);
-	
+	CREATE TABLE model_quick_sell(
+		id BIGSERIAL PRIMARY KEY,
+		model_id BIGINT NOT NULL REFERENCES models(id) ON DELETE CASCADE,
+		config_id BIGINT REFERENCES sell_model_configs(id) ON DELETE SET NULL,
+		base_price NUMERIC(10,2) NOT NULL,
+		sort_index INT NOT NULL DEFAULT 1 UNIQUE,
+		is_active BOOLEAN DEFAULT TRUE
+	);
+
 	CREATE TABLE product_master(
 		id BIGSERIAL PRIMARY KEY,
 		name VARCHAR(100) NOT NULL,
