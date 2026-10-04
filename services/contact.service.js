@@ -22,15 +22,29 @@ exports.createContactUs = async (contactData) => {
     return { id: result.rows[0].id, ...contactData };
 };
 
-exports.updateContactUs = async (id) => {
-    const result = await pool.query('UPDATE contact_us SET status=status%2+1 WHERE id = $1 RETURNING *', [id]);
-    return { id, ...result.rows[0] };
-};
+// Only columns actually present on contact_us — guards against stray body fields
+// being passed straight into the query, and lets callers send a partial update
+// (e.g. the admin "Manage Reviews" screen only sends first_name/last_name/message/status)
+// without nulling out the columns they didn't send.
+const UPDATABLE_FIELDS = ['first_name', 'last_name', 'email', 'phone', 'subject', 'message', 'status'];
 
-// exports.updateContactUs = async (id, contactData) => {
-//     const result = await pool.query('UPDATE contact_us SET $1 WHERE id = $2 RETURNING *', [contactData, id]);
-//     return { id, ...result.rows[0] };
-// };
+exports.updateContactUs = async (id, contactData = {}) => {
+    const fields = UPDATABLE_FIELDS.filter((f) => contactData[f] !== undefined);
+
+    if (fields.length === 0) {
+        const existing = await pool.query('SELECT * FROM contact_us WHERE id = $1', [id]);
+        return existing.rows[0];
+    }
+
+    const setClause = fields.map((f, i) => `${f} = $${i + 1}`).join(', ');
+    const values = fields.map((f) => contactData[f]);
+
+    const result = await pool.query(
+        `UPDATE contact_us SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = $${fields.length + 1} RETURNING *`,
+        [...values, id]
+    );
+    return result.rows[0];
+};
 
 exports.deleteContactUs = async (id) => {
     await pool.query('DELETE FROM contact_us WHERE id = $1', [id]);
