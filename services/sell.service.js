@@ -1,7 +1,49 @@
 const pool = require('../config/database');
+const { sendEmail } = require('../providers/email.provider');
 
 const QUESTION_CONTEXT_MASTER = 'question_context';
 const LISTING_STATUS_MASTER = 'listing_status';
+
+// ── Lead completion email ──────────────────────────────────────────────────
+// Short, decent-looking HTML with inline styles (required for email clients —
+// external/embedded <style> blocks are unreliable across inboxes).
+function buildLeadCompletedEmail({ firstName, modelName, amount }) {
+    const greetName = firstName ? firstName : 'there';
+    const amountText = amount != null ? `₹${Number(amount).toLocaleString('en-IN')}` : null;
+    const deviceLine = modelName ? ` for your <strong>${modelName}</strong>` : '';
+
+    const text = `Hi ${greetName},\n\nYour device sale with Recello${modelName ? ` (${modelName})` : ''} is now complete.`
+        + (amountText ? ` Final payout: ${amountText}.` : '')
+        + `\n\nThanks for selling with Recello!\n— Team Recello`;
+
+    const html = `
+<div style="font-family:Arial,Helvetica,sans-serif;background:#f5f8f6;padding:24px;">
+  <div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #dfe8e3;">
+    <div style="background:#087a55;padding:20px 24px;">
+      <span style="color:#ffffff;font-size:17px;font-weight:700;">Recello</span>
+    </div>
+    <div style="padding:26px 24px;">
+      <p style="margin:0 0 14px;color:#10231c;font-size:15px;">Hi ${greetName},</p>
+      <p style="margin:0 0 14px;color:#10231c;font-size:14px;line-height:1.6;">
+        Your device sale${deviceLine} is now <strong style="color:#087a55;">complete</strong>.
+      </p>
+      ${amountText ? `
+      <div style="background:#effbf6;border-radius:10px;padding:14px 16px;margin:0 0 16px;">
+        <span style="font-size:11px;color:#65746e;letter-spacing:.04em;">FINAL PAYOUT</span><br/>
+        <span style="font-size:22px;font-weight:800;color:#10231c;">${amountText}</span>
+      </div>` : ''}
+      <p style="margin:0;color:#65746e;font-size:13px;line-height:1.6;">
+        Thanks for selling with Recello — we hope to see you again soon.
+      </p>
+    </div>
+    <div style="padding:14px 24px;background:#f5f8f6;border-top:1px solid #dfe8e3;">
+      <span style="font-size:11px;color:#65746e;">Team Recello</span>
+    </div>
+  </div>
+</div>`.trim();
+
+    return { text, html };
+}
 
 const resolveEnumId = async (db, masterName, optionName) => {
     const res = await db.query(
@@ -926,7 +968,8 @@ exports.getListings = async ({ status }) => {
                c.name category, b.name brand, m.name model,
                smc.name config_name,
                mu.email merchant_email,
-               mup.first_name merchant_first_name, mup.last_name merchant_last_name
+               mup.first_name merchant_first_name, mup.last_name merchant_last_name,
+               cbp.first_name completed_by_first_name, cbp.last_name completed_by_last_name
         FROM sell_listings sl
         JOIN enum_master em ON sl.status=em.id AND em.master_name='listing_status'
         LEFT JOIN users u ON sl.user_id=u.id
@@ -937,6 +980,8 @@ exports.getListings = async ({ status }) => {
         LEFT JOIN sell_model_configs smc ON sl.config_id=smc.id
         LEFT JOIN users mu ON sl.assigned_merchant_id=mu.id
         LEFT JOIN user_profile mup ON mu.id=mup.user_id
+        LEFT JOIN users cb ON sl.completed_by=cb.id
+        LEFT JOIN user_profile cbp ON cb.id=cbp.user_id
         ${whereClause}
         ORDER BY sl.created_at DESC
     `, values);
@@ -973,7 +1018,11 @@ exports.getListingDetails = async (listing_id) => {
                smc.name config_name, smc.base_price config_base_price, smc.is_active config_is_active,
 
                mu.email merchant_email,
-               mup.first_name merchant_first_name, mup.last_name merchant_last_name, mup.avatar_url merchant_avatar_url
+               mup.first_name merchant_first_name, mup.last_name merchant_last_name, mup.avatar_url merchant_avatar_url,
+
+               sl.completed_by,
+               cb.email completed_by_email,
+               cbp.first_name completed_by_first_name, cbp.last_name completed_by_last_name
         FROM sell_listings sl
         LEFT JOIN enum_master em ON sl.status=em.id AND em.master_name='listing_status'
         LEFT JOIN users u ON sl.user_id=u.id
@@ -983,6 +1032,8 @@ exports.getListingDetails = async (listing_id) => {
         LEFT JOIN models m ON sl.model_id=m.id
         LEFT JOIN model_series ms ON m.series_id=ms.id
         LEFT JOIN sell_model_configs smc ON sl.config_id=smc.id
+        LEFT JOIN users cb ON sl.completed_by=cb.id
+        LEFT JOIN user_profile cbp ON cb.id=cbp.user_id
         LEFT JOIN users mu ON sl.assigned_merchant_id=mu.id
         LEFT JOIN user_profile mup ON mu.id=mup.user_id
         WHERE sl.id=$1
@@ -1094,6 +1145,14 @@ exports.getListingDetails = async (listing_id) => {
                 first_name: listingRow.merchant_first_name,
                 last_name: listingRow.merchant_last_name,
                 avatar_url: listingRow.merchant_avatar_url,
+            }
+            : null,
+        completed_by: listingRow.completed_by
+            ? {
+                id: listingRow.completed_by,
+                email: listingRow.completed_by_email,
+                first_name: listingRow.completed_by_first_name,
+                last_name: listingRow.completed_by_last_name,
             }
             : null,
         category: {
@@ -1225,21 +1284,59 @@ exports.assignListing = async (listing_id, merchant_id) => {
 
 // ── Transfer Listing (mark as completed) ─────────────────────
 
-exports.transferListing = async (listing_id) => {
+// Marks a lead complete — directly from "pending" (no merchant ever assigned) or from
+// "assigned". completedByUserId records which admin closed it (from the authenticated
+// session, never trusted from the request body) so the admin panel can show a real name
+// instead of leaving it untracked. Sends a short completion email to the customer when
+// an email address is on file; a failed/missing email never blocks the completion itself.
+exports.transferListing = async (listing_id, completedByUserId = null) => {
     if (!listing_id) throw { status: 400, message: "listing_id is required" };
     const result = await pool.query(
-        `WITH assigned AS (
+        `WITH pending AS (
+            SELECT id FROM enum_master WHERE master_name='listing_status' AND option_name='pending'
+         ), assigned AS (
             SELECT id FROM enum_master WHERE master_name='listing_status' AND option_name='assigned'
-            ), completed AS (
-                SELECT id FROM enum_master WHERE master_name='listing_status' AND option_name='completed'
+         ), completed AS (
+            SELECT id FROM enum_master WHERE master_name='listing_status' AND option_name='completed'
          )
-            UPDATE sell_listings SET status=(SELECT id FROM completed), updated_at=NOW()
-         WHERE id=$1 AND status=(SELECT id FROM assigned)
-         RETURNING id`,
-        [listing_id]
+         UPDATE sell_listings
+         SET status=(SELECT id FROM completed), completed_by=$2, updated_at=NOW()
+         WHERE id=$1 AND status IN ((SELECT id FROM pending), (SELECT id FROM assigned))
+         RETURNING id, user_id, model_id, config_id, quoted_price, expected_price`,
+        [listing_id, completedByUserId]
     );
-    if (result.rowCount === 0) throw { status: 404, message: "Listing not found or not in assigned status" };
-    return result.rows[0];
+    if (result.rowCount === 0) throw { status: 404, message: "Listing not found or not in a completable status" };
+    const row = result.rows[0];
+
+    try {
+        const infoRes = await pool.query(
+            `SELECT u.email user_email, up.first_name,
+                    m.name model_name,
+                    smc.base_price config_price
+             FROM sell_listings sl
+             LEFT JOIN users u ON sl.user_id=u.id
+             LEFT JOIN user_profile up ON u.id=up.user_id
+             LEFT JOIN models m ON sl.model_id=m.id
+             LEFT JOIN sell_model_configs smc ON sl.config_id=smc.id
+             WHERE sl.id=$1`,
+            [listing_id]
+        );
+        const info = infoRes.rows[0];
+        if (info?.user_email) {
+            const amount = row.quoted_price ?? info.config_price ?? row.expected_price ?? null;
+            const { text, html } = buildLeadCompletedEmail({
+                firstName: info.first_name,
+                modelName: info.model_name,
+                amount,
+            });
+            await sendEmail(info.user_email, 'Your device sale with Recello is complete', text, html);
+        }
+    } catch (emailErr) {
+        // Completion already succeeded in the DB; a notification failure shouldn't undo that.
+        console.error('transferListing: completion email failed:', emailErr?.message || emailErr);
+    }
+
+    return { id: row.id };
 };
 
 // ── Cancel Listing ───────────────────────────────────────────

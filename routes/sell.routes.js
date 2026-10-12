@@ -50,9 +50,13 @@ router.get('/listings', sellController.getListings);
 router.get('/listings/:id', sellController.getListingDetails);
 router.get('/listings/:id/offers', authMiddleware, sellController.getListingOffers);
 router.post('/listings', authMiddleware, reqBody, sellController.createListing);
-router.put('/listings/:id/assign', sellController.assignListing);
-router.put('/listings/:id/transfer', sellController.transferListing);
-router.put('/listings/:id/cancel', sellController.cancelListing);
+// These are admin-only mutations (assign/complete/cancel a lead) and previously had no auth
+// check at all. authMiddleware is now required — transferListing in particular needs it to
+// know which admin completed the lead. The admin panel already sends a Bearer token on every
+// request (see src/api/axios.js), so this doesn't require any frontend change.
+router.put('/listings/:id/assign', authMiddleware, sellController.assignListing);
+router.put('/listings/:id/transfer', authMiddleware, sellController.transferListing);
+router.put('/listings/:id/cancel', authMiddleware, sellController.cancelListing);
 
 // Sell Listings (Leads)
 router.post('/pickup', authMiddleware, reqBody, sellController.schedulePickup);

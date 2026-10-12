@@ -347,30 +347,23 @@ async function processCatalogUploadedFile(req, res) {
                     );
                     const modelId = modelResult.rows[0].id;
 
+                    // One config per (model_id, name) is enforced by a DB unique constraint
+                    // (see lead_completion_and_config_dedup_migration.sql), so a re-uploaded
+                    // file with the same Config Name updates that row's price/status instead
+                    // of creating a duplicate — same atomic ON CONFLICT pattern used above
+                    // for series and models, now also enforced at the DB level for configs.
                     let configId = null;
                     if (configName) {
-                        const existingCfg = await client.query(
-                            `SELECT id FROM sell_model_configs WHERE model_id=$1 AND name=$2 LIMIT 1`,
-                            [modelId, configName],
+                        const cfgRes = await client.query(
+                            `INSERT INTO sell_model_configs(model_id, name, base_price, is_active)
+                             VALUES ($1, $2, $3, COALESCE($4, true))
+                             ON CONFLICT (model_id, name) DO UPDATE
+                               SET base_price=COALESCE(EXCLUDED.base_price, sell_model_configs.base_price),
+                                   is_active=COALESCE(EXCLUDED.is_active, sell_model_configs.is_active)
+                             RETURNING id`,
+                            [modelId, configName, basePrice, configActive],
                         );
-                        if (existingCfg.rowCount > 0) {
-                            configId = existingCfg.rows[0].id;
-                            await client.query(
-                                `UPDATE sell_model_configs
-                                 SET base_price=COALESCE($1, base_price),
-                                     is_active=COALESCE($2, is_active)
-                                 WHERE id=$3`,
-                                [basePrice, configActive != null ? configActive : null, configId],
-                            );
-                        } else {
-                            const cfgRes = await client.query(
-                                `INSERT INTO sell_model_configs(model_id, name, base_price, is_active)
-                                 VALUES ($1, $2, $3, COALESCE($4, true))
-                                 RETURNING id`,
-                                [modelId, configName, basePrice, configActive],
-                            );
-                            configId = cfgRes.rows[0].id;
-                        }
+                        configId = cfgRes.rows[0].id;
                     }
 
                     await client.query('COMMIT');

@@ -196,7 +196,8 @@ exports.assignListing = async (req, res) => {
 
 exports.transferListing = async (req, res) => {
     const { id } = req.params;
-    const data = await sellService.transferListing(id);
+    const completedByUserId = req.user?.userId || null;
+    const data = await sellService.transferListing(id, completedByUserId);
     res.status(200).json(data);
 };
 

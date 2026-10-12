@@ -235,7 +235,8 @@ BEGIN;
 		model_id BIGINT NOT NULL REFERENCES models(id) ON DELETE CASCADE,
 		name VARCHAR(100) NOT NULL,        -- "6GB / 64GB", "8GB / 128GB"
 		base_price NUMERIC(10,2) NOT NULL, -- ops sets buying price per config
-		is_active BOOLEAN DEFAULT TRUE
+		is_active BOOLEAN DEFAULT TRUE,
+		UNIQUE (model_id, name)
 	);
 
 	CREATE TABLE sell_question_options (
@@ -260,6 +261,7 @@ BEGIN;
 		expected_price NUMERIC(10,2) NOT NULL,
 		status BIGINT DEFAULT 1,
 		assigned_merchant_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+		completed_by BIGINT REFERENCES users(id) ON DELETE SET NULL,
 		created_at TIMESTAMP DEFAULT NOW(),
 		updated_at TIMESTAMP DEFAULT NOW()
 	);
