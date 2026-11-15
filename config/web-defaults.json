@@ -1,0 +1,53 @@
+{
+  "_note": "Defaults for the website / app API (/api/web). Any key can be overridden by a row in the web_settings table (key = business | growth | pricing | repair | catmap | site), value = JSON.",
+  "business": {
+    "cities": ["Pune"],
+    "defaultCity": "Pune",
+    "soon": ["Delhi NCR", "Mumbai", "Bengaluru", "Hyderabad", "Chennai", "Kolkata", "Ahmedabad", "Jaipur", "Chandigarh", "Lucknow", "Kochi", "Indore", "Surat"],
+    "icons": {},
+    "pins": ["411"],
+    "rapid": { "on": true, "minutes": 90, "from": 10, "to": 18 },
+    "supportEmail": "recellosolutions@gmail.com",
+    "hours": "9 AM–9 PM, every day",
+    "states": { "Pune": "Maharashtra" }
+  },
+  "growth": {
+    "ref_on": false,
+    "ref_friend": 200,
+    "ref_referrer": 200,
+    "video_on": false,
+    "video_min": 25000,
+    "upgrade_on": true,
+    "today_on": false,
+    "today_amount": 0,
+    "today_min": 0
+  },
+  "pricing": {
+    "verified": 1.01,
+    "floor": { "phone": 1000, "laptop": 1000, "tablet": 1000, "watch": 500 }
+  },
+  "repair": {
+    "devices": [
+      ["ip-new", "iPhone 15, 16, 17 or 18 series"],
+      ["ip-old", "iPhone 12, 13 or 14 series"],
+      ["and-flag", "Galaxy S, Pixel or OnePlus flagship"],
+      ["and-mid", "Other Android phones"]
+    ],
+    "issues": [
+      ["screen", "Screen", [22900, 12900, 15900, 5900], "45 to 60 min"],
+      ["battery", "Battery", [7900, 4900, 4500, 2400], "30 to 45 min"],
+      ["charge", "Charging port", [5900, 3900, 3200, 1500], "40 to 60 min"],
+      ["back", "Back glass", [8900, 5900, 5900, 1900], "60 to 90 min"],
+      ["camera", "Camera", [11900, 6900, 7900, 2900], "40 to 60 min"],
+      ["speaker", "Speaker or mic", [3900, 2900, 2600, 1200], "30 to 45 min"],
+      ["water", "Water damage", [999, 999, 999, 999], "Diagnosis within 24 hours"]
+    ]
+  },
+  "catmap": {
+    "phone": ["sell-mobiles", "mobiles", "mobile", "phones", "phone", "smartphones"],
+    "tablet": ["sell-tablets", "tablets", "tablet"],
+    "laptop": ["sell-laptops", "laptops", "laptop"],
+    "watch": ["sell-smartwatches", "smartwatches", "smartwatch", "sell-watches", "watches", "watch"]
+  },
+  "site": {}
+}

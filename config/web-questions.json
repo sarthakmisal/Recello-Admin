@@ -1,0 +1,591 @@
+[
+ {
+  "id": "color",
+  "title": "Which colour is it?",
+  "help": "",
+  "type": "color",
+  "cats": [
+   "phone",
+   "laptop",
+   "tablet",
+   "watch"
+  ],
+  "brands": [],
+  "models": [],
+  "active": true,
+  "options": []
+ },
+ {
+  "id": "origin",
+  "title": "Where did you buy this phone?",
+  "help": "Check the box or the bill. Phones bought outside India can have a different warranty and network bands.",
+  "type": "single",
+  "cats": [
+   "phone"
+  ],
+  "brands": [
+   "Apple",
+   "Samsung",
+   "Google"
+  ],
+  "models": [],
+  "active": true,
+  "options": [
+   {
+    "id": "india",
+    "label": "In India",
+    "deduct": 0,
+    "img": "preset:origin-in",
+    "active": true
+   },
+   {
+    "id": "abroad",
+    "label": "Outside India",
+    "deduct": 3,
+    "img": "preset:origin-out",
+    "active": true
+   }
+  ]
+ },
+ {
+  "id": "age",
+  "title": "How long have you owned this device?",
+  "help": "",
+  "type": "single",
+  "cats": [
+   "phone",
+   "laptop",
+   "tablet",
+   "watch"
+  ],
+  "active": true,
+  "options": [
+   {
+    "id": "a0",
+    "label": "0 - 3 Months",
+    "deduct": 0,
+    "img": "preset:cal-3",
+    "active": true
+   },
+   {
+    "id": "a3",
+    "label": "3 - 6 Months",
+    "deduct": 10,
+    "img": "preset:cal-6",
+    "active": true
+   },
+   {
+    "id": "a6",
+    "label": "6 - 11 Months",
+    "deduct": 15,
+    "img": "preset:cal-11",
+    "active": true
+   },
+   {
+    "id": "a11",
+    "label": "Above 11 Months",
+    "deduct": 20,
+    "img": "preset:cal-12",
+    "active": true
+   }
+  ]
+ },
+ {
+  "id": "body",
+  "title": "What is the physical condition of your device?",
+  "help": "",
+  "type": "single",
+  "cats": [
+   "phone",
+   "laptop",
+   "tablet",
+   "watch"
+  ],
+  "active": true,
+  "options": [
+   {
+    "id": "excellent",
+    "label": "Excellent",
+    "deduct": 0,
+    "img": "preset:body-excellent",
+    "active": true
+   },
+   {
+    "id": "good",
+    "label": "Good",
+    "deduct": 3,
+    "img": "preset:body-good",
+    "active": true
+   },
+   {
+    "id": "fair",
+    "label": "Fair",
+    "deduct": 10,
+    "img": "preset:body-fair",
+    "active": true
+   },
+   {
+    "id": "poor",
+    "label": "Poor",
+    "deduct": 15,
+    "img": "preset:body-poor",
+    "active": true
+   }
+  ]
+ },
+ {
+  "id": "screen",
+  "title": "What is the condition of your device's screen?",
+  "help": "",
+  "type": "single",
+  "cats": [
+   "phone",
+   "laptop",
+   "tablet",
+   "watch"
+  ],
+  "active": true,
+  "options": [
+   {
+    "id": "likenew",
+    "label": "Like New (No Marks or Issues)",
+    "deduct": 0,
+    "img": "preset:screen-ok",
+    "active": true
+   },
+   {
+    "id": "minor",
+    "label": "Minor Scratches",
+    "deduct": 3,
+    "img": "preset:screen-scratch",
+    "active": true
+   },
+   {
+    "id": "heavy",
+    "label": "Heavy Scratches",
+    "deduct": 10,
+    "img": "preset:screen-heavy",
+    "active": true
+   },
+   {
+    "id": "display",
+    "label": "Display Issues",
+    "deduct": 15,
+    "img": "preset:screen-display",
+    "active": true
+   },
+   {
+    "id": "cracked",
+    "label": "Cracked or Broken Screen",
+    "deduct": 20,
+    "img": "preset:screen-crack",
+    "active": true
+   }
+  ]
+ },
+ {
+  "id": "battery",
+  "title": "What is the battery health?",
+  "help": "",
+  "type": "battery",
+  "cats": [
+   "phone",
+   "watch",
+   "laptop"
+  ],
+  "brands": [
+   "Apple"
+  ],
+  "models": [],
+  "active": true,
+  "options": [],
+  "bands": [
+   {
+    "min": 95,
+    "deduct": 0
+   },
+   {
+    "min": 90,
+    "deduct": 0
+   },
+   {
+    "min": 85,
+    "deduct": 0
+   },
+   {
+    "min": 80,
+    "deduct": 0
+   },
+   {
+    "min": 0,
+    "deduct": 0
+   }
+  ],
+  "unsure": 0
+ },
+ {
+  "id": "spen",
+  "title": "Is the S Pen with it, and does it work?",
+  "help": "",
+  "type": "single",
+  "cats": [
+   "phone",
+   "tablet"
+  ],
+  "brands": [
+   "Samsung"
+  ],
+  "models": [
+   "samsung-galaxy-s26-ultra",
+   "s25u",
+   "samsung-galaxy-s24-ultra-5g",
+   "samsung-galaxy-s23-ultra-5g",
+   "samsung-galaxy-s22-ultra-5g",
+   "samsung-galaxy-note-20-ultra-5g",
+   "samsung-galaxy-note-10-plus-5g",
+   "samsung-galaxy-note-10-plus",
+   "samsung-galaxy-note-20",
+   "samsung-galaxy-note-10",
+   "samsung-galaxy-note-9",
+   "samsung-galaxy-note-8",
+   "samsung-galaxy-note-10-lite",
+   "samsung-galaxy-note-5",
+   "samsung-galaxy-note-5-dual-sim",
+   "samsung-galaxy-note-4",
+   "tabs9"
+  ],
+  "active": true,
+  "options": [
+   {
+    "id": "spen-ok",
+    "label": "Yes, it works",
+    "deduct": 0,
+    "img": "preset:spen-ok",
+    "active": true
+   },
+   {
+    "id": "spen-bad",
+    "label": "Yes, but it doesn't work properly",
+    "deduct": 0,
+    "img": "preset:spen-broken",
+    "active": true
+   },
+   {
+    "id": "spen-none",
+    "label": "No S Pen",
+    "deduct": 0,
+    "img": "preset:spen-missing",
+    "active": true
+   }
+  ]
+ },
+ {
+  "id": "fold",
+  "title": "How does the fold look when the phone is open?",
+  "help": "Open the phone fully and look at the middle of the inner screen.",
+  "type": "single",
+  "cats": [
+   "phone"
+  ],
+  "brands": [],
+  "models": [
+   "iphone-duo",
+   "samsung-galaxy-z-fold-8-ultra",
+   "samsung-galaxy-z-fold-8",
+   "samsung-galaxy-z-fold-7",
+   "samsung-galaxy-z-flip-8",
+   "samsung-galaxy-z-fold6-5g",
+   "samsung-galaxy-z-flip-7",
+   "samsung-galaxy-z-flip-7-fe",
+   "samsung-galaxy-z-fold5",
+   "zflip6",
+   "samsung-galaxy-z-fold4",
+   "samsung-galaxy-z-flip5",
+   "samsung-galaxy-z-fold3-5g",
+   "samsung-galaxy-z-fold2-5g",
+   "samsung-galaxy-z-flip4",
+   "samsung-galaxy-z-flip3-5g",
+   "samsung-galaxy-z-flip",
+   "google-pixel-11-pro-fold",
+   "google-pixel-10-pro-fold",
+   "google-pixel-9-pro-fold",
+   "vivo-x-fold-5",
+   "vivo-x-fold-3-pro",
+   "oppo-find-n3-flip",
+   "oppo-find-n2-flip",
+   "motorola-moto-razr-60-ultra",
+   "motorola-moto-razr-50-ultra",
+   "motorola-moto-razr-60",
+   "motorola-moto-razr-50",
+   "motorola-moto-razr-40-ultra",
+   "motorola-moto-razr-40",
+   "motorola-moto-razr-5g",
+   "motorola-moto-razr",
+   "infinix-zero-flip-5g",
+   "tecno-phantom-v-fold2-5g",
+   "tecno-phantom-v-fold-5g",
+   "tecno-phantom-v-flip2-5g",
+   "tecno-phantom-v-flip-5g",
+   "ai-novaflip-5g"
+  ],
+  "active": true,
+  "options": [
+   {
+    "id": "fold-ok",
+    "label": "Smooth, only a light crease",
+    "deduct": 0,
+    "img": "preset:fold-ok",
+    "active": true
+   },
+   {
+    "id": "fold-crease",
+    "label": "Deep crease or bubbles in the screen film",
+    "deduct": 0,
+    "img": "preset:fold-crease",
+    "active": true
+   },
+   {
+    "id": "fold-lines",
+    "label": "Lines, dead spots or flicker on the fold",
+    "deduct": 0,
+    "img": "preset:fold-lines",
+    "active": true
+   }
+  ]
+ },
+ {
+  "id": "parts",
+  "title": "Has the screen, battery or camera ever been replaced?",
+  "help": "On iPhone: Settings → General → About → Parts and Service History.",
+  "type": "single",
+  "cats": [
+   "phone"
+  ],
+  "brands": [
+   "Apple"
+  ],
+  "models": [],
+  "active": true,
+  "options": [
+   {
+    "id": "parts-none",
+    "label": "No, all original",
+    "deduct": 0,
+    "img": "preset:parts-ok",
+    "active": true
+   },
+   {
+    "id": "parts-apple",
+    "label": "Yes, at Apple or an authorised centre",
+    "deduct": 0,
+    "img": "preset:parts-service",
+    "active": true
+   },
+   {
+    "id": "parts-local",
+    "label": "Yes, at another shop",
+    "deduct": 0,
+    "img": "preset:parts-local",
+    "active": true
+   },
+   {
+    "id": "parts-unsure",
+    "label": "Not sure",
+    "deduct": 0,
+    "img": "preset:unsure",
+    "active": true
+   }
+  ]
+ },
+ {
+  "id": "issues",
+  "title": "Is anything not working properly?",
+  "help": "",
+  "type": "multi",
+  "cats": [
+   "phone",
+   "tablet"
+  ],
+  "brands": [],
+  "models": [],
+  "active": true,
+  "options": [
+   {
+    "id": "none-ok",
+    "label": "None, everything works",
+    "deduct": 0,
+    "img": "preset:no-issues",
+    "active": true
+   },
+   {
+    "id": "i-batt",
+    "label": "Battery drains fast or is swollen",
+    "deduct": 0,
+    "img": "preset:battery-low",
+    "active": true
+   },
+   {
+    "id": "i-sound",
+    "label": "Speaker or mic",
+    "deduct": 0,
+    "img": "preset:sound-issue",
+    "active": true
+   },
+   {
+    "id": "i-btn",
+    "label": "Power or volume buttons",
+    "deduct": 0,
+    "img": "preset:button-issue",
+    "active": true
+   },
+   {
+    "id": "i-charge",
+    "label": "Charging port",
+    "deduct": 0,
+    "img": "preset:charge-issue",
+    "active": true
+   }
+  ]
+ },
+ {
+  "id": "issues-laptop",
+  "title": "Is anything not working properly?",
+  "help": "",
+  "type": "multi",
+  "cats": [
+   "laptop"
+  ],
+  "brands": [],
+  "models": [],
+  "active": true,
+  "options": [
+   {
+    "id": "none-ok",
+    "label": "None, everything works",
+    "deduct": 0,
+    "img": "preset:no-issues",
+    "active": true
+   },
+   {
+    "id": "i-batt",
+    "label": "Battery drains fast or is swollen",
+    "deduct": 0,
+    "img": "preset:battery-low",
+    "active": true
+   },
+   {
+    "id": "i-sound",
+    "label": "Speakers or mic",
+    "deduct": 0,
+    "img": "preset:sound-issue",
+    "active": true
+   },
+   {
+    "id": "i-kbd",
+    "label": "Keyboard or trackpad",
+    "deduct": 0,
+    "img": "preset:keyboard-issue",
+    "active": true
+   },
+   {
+    "id": "i-charge",
+    "label": "Charging port",
+    "deduct": 0,
+    "img": "preset:charge-issue",
+    "active": true
+   }
+  ]
+ },
+ {
+  "id": "issues-watch",
+  "title": "Is anything not working properly?",
+  "help": "",
+  "type": "multi",
+  "cats": [
+   "watch"
+  ],
+  "brands": [],
+  "models": [],
+  "active": true,
+  "options": [
+   {
+    "id": "none-ok",
+    "label": "None, everything works",
+    "deduct": 0,
+    "img": "preset:no-issues",
+    "active": true
+   },
+   {
+    "id": "i-batt",
+    "label": "Battery drains fast",
+    "deduct": 0,
+    "img": "preset:battery-low",
+    "active": true
+   },
+   {
+    "id": "i-sound",
+    "label": "Speaker or mic",
+    "deduct": 0,
+    "img": "preset:sound-issue",
+    "active": true
+   },
+   {
+    "id": "i-btn",
+    "label": "Crown or side button",
+    "deduct": 0,
+    "img": "preset:button-issue",
+    "active": true
+   },
+   {
+    "id": "i-charge",
+    "label": "Charging",
+    "deduct": 0,
+    "img": "preset:charge-issue",
+    "active": true
+   }
+  ]
+ },
+ {
+  "id": "acc",
+  "title": "Which of the following accessories do you have? Select all that apply.",
+  "help": "",
+  "type": "multi",
+  "cats": [
+   "phone",
+   "laptop",
+   "tablet",
+   "watch"
+  ],
+  "active": true,
+  "options": [
+   {
+    "id": "bill",
+    "label": "Original Invoice / Purchase Bill",
+    "deduct": 0,
+    "img": "preset:bill",
+    "active": true
+   },
+   {
+    "id": "box",
+    "label": "Original Box",
+    "deduct": 0,
+    "img": "preset:box",
+    "active": true
+   },
+   {
+    "id": "charger",
+    "label": "Original Charger",
+    "deduct": 0,
+    "img": "preset:charger",
+    "active": true
+   },
+   {
+    "id": "none",
+    "label": "None Available",
+    "deduct": 0,
+    "img": "preset:none",
+    "active": true
+   }
+  ]
+ }
+]
