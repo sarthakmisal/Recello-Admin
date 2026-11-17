@@ -17,6 +17,7 @@ router.get("/brand/:brandSlug/products", productController.getProductsByBrand);
 router.get("/brand/:brandSlug/models", productController.getModelsByBrandSeries);
 router.get("/brand/:brandSlug/:seriesSlug/models", productController.getModelsByBrandSeries);
 router.get("/brand/:brandSlug/series", productController.getSeriesByBrand);
+router.get("/catalog", productController.getSellCatalog);
 router.get("/:brandSlug/:modelSlug", productController.getVariantsByBrandModel);
 
 

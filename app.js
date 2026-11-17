@@ -84,8 +84,6 @@ app.use('/uploads', (req, res, next) => {
 // ─────────────────────────────────────────────
 // 3. BODY PARSING & MISC MIDDLEWARE
 // ─────────────────────────────────────────────
-// the website/app API takes a screenshot with some requests, so it gets a bigger (still limited) body than the rest
-app.use('/api/web', express.json({ limit: '2mb' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
@@ -115,8 +113,6 @@ app.use('/admin', express.static(adminPath, staticOptions));
 // ─────────────────────────────────────────────
 // 5. API ROUTES
 // ─────────────────────────────────────────────
-// website + Android app (Recello-Mobile)
-app.use('/api/web', require('./routes/web.routes'));
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/product', require('./routes/product.routes'));
 app.use('/api/users', require('./routes/user.routes'));

@@ -5,8 +5,8 @@ exports.verifyOTP = async (req, res) => {
   const result = await authService.verifyOTP(req.body);
   res.cookie("refreshToken", result.refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production" || process.env.COOKIE_SAMESITE === "none",
+    sameSite: process.env.COOKIE_SAMESITE || "strict",
     maxAge: 15 * 24 * 60 * 60 * 1000 // 15 days
   });
   res.status(200).json({ accessToken: result.accessToken, user: result.res_user });
@@ -32,8 +32,8 @@ exports.login = async (req, res) => {
   const result = await authService.loginUser(req.body);
   res.cookie("refreshToken", result.refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production" || process.env.COOKIE_SAMESITE === "none",
+    sameSite: process.env.COOKIE_SAMESITE || "strict",
     maxAge: 15 * 24 * 60 * 60 * 1000 // 15 days
   })
   res.status(200).json({ accessToken: result.accessToken, user: result.res_user });

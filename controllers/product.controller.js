@@ -93,3 +93,8 @@ exports.getVariantsByBrandModel = async (req, res) => {
     const result = await productService.getVariantsByBrandModel(req.params);
     res.status(200).json(result);
 }
+
+exports.getSellCatalog = async (req, res) => {
+    const result = await productService.getSellCatalog();
+    res.status(200).json(result);
+}

@@ -1,8 +1,0 @@
-# Recello: the shop is open to search engines; the staff panel, the API and private folders are not.
-User-agent: *
-Disallow: /admin/
-Disallow: /api/
-Disallow: /uploads/
-Allow: /
-
-Sitemap: https://recello.in/sitemap.xml

@@ -611,3 +611,35 @@ exports.getVariantsByBrandModel = async ({ brandSlug, modelSlug }) => {
 
     return result.rows;
 };
+
+// ── Sell catalog (one read-only call for the website / app home screen) ───────────────────────
+// Everything the existing brand / series / model / variant routes return, in one response, so a client does not need
+// hundreds of calls to build its search and model lists. Same tables and filters as getVariantsByBrandModel.
+exports.getSellCatalog = async () => {
+    const models = await pool.query(`
+        SELECT m.id, m.slug, m.name, b.slug AS brand_slug, b.name AS brand, ms.name AS series, c.slug AS category_slug,
+               (SELECT i.url FROM model_images mi JOIN images i ON i.id = mi.image_id
+                 WHERE mi.model_id = m.id ORDER BY mi.image_id LIMIT 1) AS image_url
+          FROM models m
+          JOIN brands b ON b.id = m.brand_id
+          JOIN categories c ON c.id = m.category_id
+          LEFT JOIN model_series ms ON ms.id = m.series_id
+         WHERE m.status = 1 AND b.status = 1 AND c.is_active IS NOT FALSE
+         ORDER BY b.name, m.name`);
+    const cfgs = await pool.query(`
+        SELECT sc.id, sc.model_id, sc.name, sc.base_price
+          FROM sell_model_configs sc
+          JOIN models m ON m.id = sc.model_id
+         WHERE m.status = 1 AND sc.is_active IS NOT FALSE AND sc.base_price IS NOT NULL
+         ORDER BY sc.model_id, sc.id`);
+    const byModel = new Map();
+    for (const c of cfgs.rows) {
+        if (!byModel.has(c.model_id)) byModel.set(c.model_id, []);
+        byModel.get(c.model_id).push({ id: c.id, name: c.name, base_price: c.base_price });
+    }
+    return {
+        models: models.rows
+            .map((m) => ({ ...m, variants: byModel.get(m.id) || [] }))
+            .filter((m) => m.variants.length),
+    };
+};
