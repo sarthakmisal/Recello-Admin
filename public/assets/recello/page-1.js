@@ -22,10 +22,10 @@ let PRICE_GATE=true;
 const BUILTIN_PRICES=false;
 let PRICES_IN=BUILTIN_PRICES;   // the catalogue in memory carries real prices
 const gated=()=>PRICE_GATE&&!(S.vphone&&PRICES_IN);
-const upTo=m=>gated()?'Get price':'up to '+inr(topFor(m));
+const upTo=m=>m.lazy||gated()?'Get price':'up to '+inr(topFor(m));
 /* Lists show what storage a model comes in, not a price: the "up to" price appears only on the model the customer picks. */
 const stGB=v=>{const x=String(v).match(/(\d+(?:\.\d+)?)\s?([GT])B\s*$/i);return x?(+x[1])*(x[2].toUpperCase()==='T'?1024:1):0};
-const storRange=m=>{const vs=m.variants.map(v=>v[0]),g=vs.map(stGB);if(vs.length===1)return vs[0].length<=12?vs[0]:'1 option';
+const storRange=m=>{if(m.lazy)return '';const vs=m.variants.map(v=>v[0]),g=vs.map(stGB);if(vs.length===1)return vs[0].length<=12?vs[0]:'1 option';
   if(!g.every(Boolean))return vs.length+' options';const lo=Math.min(...g),hi=Math.max(...g),f=x=>x>=1024?(x/1024)+'TB':x+'GB';return lo===hi?f(lo):f(lo)+' – '+f(hi)};
 /* "Too many tries" (429): the server says how many seconds to wait. The message says it in words, and the button that was
    pressed counts down ("Try again in 0:45") and stays off until then. */
@@ -2176,6 +2176,7 @@ sug.addEventListener('keydown',e=>{
 /* a model from the search: the pop-up opens at its RAM and storage, then the questions follow in it.
    If the search already named exactly one of its storage options ("iphone 13 256gb"), it starts at the questions. */
 function heroGo(m,q){sug.hidden=true;
+  if(m.lazy){rcReady(m).then(ok=>{if(ok)heroGo(m,q)});return}
   const mm=String(q).match(/(\d+)\s?(gb|tb)/i)||String(q).match(/\b(64|128|256|512|1024)\b()/);
   const hits=mm?m.variants.map((v,i)=>[v,i]).filter(([v])=>v[0].toLowerCase().replace(/\s/g,'').includes((mm[1]+(mm[2]||'gb')).toLowerCase())):[];
   hsClose(()=>{heroQ.value='';hsClearB.hidden=true;openModel(m,hits.length===1?hits[0][1]:0,hits.length===1)})}
@@ -2388,6 +2389,7 @@ function renderQuote(){
 }
 function pickModel(id,vi){
   const m=byId[id];if(!m)return;
+  if(m.lazy){rcReady(m).then(ok=>{if(ok)pickModel(id,vi)});return}
   const catChanged=m.cat!==S.cat;
   if(catChanged){S.cat=m.cat;S.brand='All';S.q='';$('#modelSearch').value='';renderCatTabs();renderBrands()}
   if(S.modelId!==id){S.qi=0;S.ans={}}S.modelId=id;S.vi=Math.min(vi||0,m.variants.length-1);
@@ -2763,7 +2765,7 @@ const RATE={phone:.022,tablet:.018,watch:.02,laptop:.015};
 function niceStep(raw){const mag=Math.pow(10,Math.floor(Math.log10(raw))),n=raw/mag;return(n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*mag}
 const compact=v=>v>=1e5?'₹'+(v/1e5).toFixed(2).replace(/\.?0+$/,'')+'L':v>=1000?'₹'+Math.round(v/1000)+'k':'₹'+v;
 function projection(m){
-  const L=launchOf(m),rate=RATE[m.cat],now=new Date();let v=gated()?1000:topPrice(m,0);const pts=[];
+  const L=launchOf(m),rate=RATE[m.cat],now=new Date();let v=(gated()||m.lazy||!m.base)?1000:topPrice(m,0);const pts=[];
   for(let i=0;i<=12;i++){
     const d=new Date(now.getFullYear(),now.getMonth()+i,1);let launch=false;
     if(i>0){v*=1-rate;if(L&&d.getMonth()===L[0]){v*=m.cat==='phone'?.93:.95;launch=true}}
@@ -2773,7 +2775,7 @@ function projection(m){
 }
 const mLabel=p=>p.i===0?'Now':p.d.toLocaleDateString('en-IN',{month:'short'})+(p.d.getMonth()===0?" '"+String(p.d.getFullYear()).slice(2):'');
 function renderPulse(){
-  const m=byId[P.id],{pts,L,rate}=projection(m),gt=gated(),val=v=>gt?Math.round(v/10)+'%':inr(v),ax=v=>gt?Math.round(v/10)+'%':compact(v);
+  const m=byId[P.id],{pts,L,rate}=projection(m),gt=gated()||m.lazy||!m.base,val=v=>gt?Math.round(v/10)+'%':inr(v),ax=v=>gt?Math.round(v/10)+'%':compact(v);
   const W=720,H=290,pl=58,pr=18,pt=28,pb=40;
   const vals=pts.map(p=>p.v),lo=Math.min(...vals),hi=Math.max(...vals);
   const step=niceStep(Math.max(hi-lo,hi*.05)/4),y0=Math.max(0,Math.floor(lo*.98/step)*step),y1=Math.ceil(hi*1.01/step)*step;
@@ -3598,10 +3600,11 @@ function phoneBrands(){const c=new Map();CATALOG.forEach(m=>{if(m.cat==='phone')
 const BRAND_KIT={Apple:['apple',2.72,'#0E2A19'],Samsung:['samsung',5.36,'#1428A0'],OnePlus:['oneplus',3.85,'#F62415'],Xiaomi:['xiaomi',3.03,'#FF6A08'],Vivo:['vivo',3.49,'#415FFF'],
   OPPO:['oppo',5.17,'#00925F'],Realme:['realme',3.23,'#F2B705'],Google:['google',.92,'#4285F4'],iQOO:['iqoo',3.75,'#F0B31A'],
   ASUS:['asus',3.77,'#4D4F53'],LG:['lg',1.95,'#A50034'],Lenovo:['lenovo',3.77,'#E2231A'],'Ai+':['aiplus',1.2,'#111111'],Nothing:['nothing',3.9,'#D71921'],Honor:['honor',3.8,'#5A5AF7'],Nokia:['nokia',4.2,'#124191'],POCO:['poco',1.73,'#F5C400'],Tecno:['tecno',2.4,'#1775BB'],Infinix:['infinix',3.64,'#2B2B2B'],Motorola:['motorola',3.82,'#0E1E2F']};
-const logoOf=b=>{const t=LX.tiles.find(x=>x.brand===b);return t&&t.logo?t.logo:BRAND_KIT[b]?'icons/brands/'+BRAND_KIT[b][0]+'.png':''};
-const tintOf=b=>BRAND_KIT[b]?BRAND_KIT[b][2]:'';
+const KIT_LC={};Object.keys(BRAND_KIT).forEach(k=>{KIT_LC[k.toLowerCase()]=k});const kitOf=b=>BRAND_KIT[KIT_LC[String(b).toLowerCase()]]||null;
+const logoOf=b=>{const t=LX.tiles.find(x=>x.brand===b);return t&&t.logo?t.logo:kitOf(b)?'icons/brands/'+kitOf(b)[0]+'.png':''};
+const tintOf=b=>kitOf(b)?kitOf(b)[2]:'';
 /* every logo gets the same visual weight: wide word marks sit lower, tall marks sit taller (height ∝ 1/√(width÷height)) */
-const brandFace=b=>{const l=logoOf(b),kit=BRAND_KIT[b],own=l&&!(kit&&l.endsWith(kit[0]+'.png'));
+const brandFace=b=>{const l=logoOf(b),kit=kitOf(b),own=l&&!(kit&&l.endsWith(kit[0]+'.png'));
   return l?`<img class="bl"${own?' data-fit':` style="--k:${(1/Math.sqrt(kit[1])).toFixed(3)}"`} src="${esc(l)}" alt="${esc(b)}" decoding="async">`:`<span class="bt-name${b.length>7?' long':''}">${esc(b)}</span>`};
 function fitLogos(root){(root||document).querySelectorAll('img[data-fit]').forEach(i=>{const go=()=>{if(i.naturalWidth&&i.naturalHeight){i.style.setProperty('--k',(1/Math.sqrt(i.naturalWidth/i.naturalHeight)).toFixed(3));i.removeAttribute('data-fit')}};if(i.complete)go();else i.addEventListener('load',go,{once:true})})}
 function tileBrands(){const have=phoneBrands();return (LX.tiles.length?LX.tiles.map(t=>t.brand):DEF_BRANDS).filter(b=>have.has(b)).slice(0,9)}
@@ -3616,6 +3619,17 @@ function renderBrandTiles(){
 $('#brandRow').addEventListener('click',e=>{const b=e.target.closest('[data-brand]');if(b)openBrand(b.dataset.brand)});
 
 /* ---------- brand sheet: brand → model → storage, then straight to the questions ---------- */
+/* a model tapped for the first time: its storage options and price come from the server now (one call, remembered for a minute) */
+const RCR={};
+async function rcReady(m){
+  if(!m||!m.lazy)return true;
+  try{
+    const d=await (RCR[m.id]=RCR[m.id]||apiGet('model_detail',{model:m.id}));
+    m.variants=d.variants;m.base=+d.base||0;m.lazy=false;
+    return true;
+  }catch(e){toast((e&&e.message)||'Could not load this model. Please try again.');return false}
+  finally{delete RCR[m.id]}
+}
 const BS={brand:'',q:'',series:'',m:null,last:null,quiz:false,qi:0,t:0,offer:false};
 function openBrand(brand){
   if(BS.offer){BS.offer=false;bsOfferOut()}
@@ -3624,6 +3638,7 @@ function openBrand(brand){
   setTimeout(()=>{const f=BS.brand?(isPhone()?$('#brandSheet .bs-m'):$('#bsQ')):$('#bsAll .bt');if(f)f.focus({preventScroll:true})},40);
 }
 function openModel(m,vi,known){
+  if(m.lazy){rcReady(m).then(ok=>{if(ok)openModel(m,vi,known)});return}
   if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
   openBrand(m.brand);BS.last=null;
   if(known||m.variants.length===1){bsPick(m,vi||0);return}
@@ -3728,7 +3743,7 @@ $('#brandSheet').addEventListener('click',e=>{
   if(t.id==='bsBack'){BS.m=null;renderBS();return}
   if(t.dataset.bsb!=null){BS.brand=t.dataset.bsb;renderBS();$('#brandSheet .nudge-card').scrollTop=0;return}
   if(t.dataset.bss!=null){BS.series=t.dataset.bss;renderBS();return}
-  if(t.dataset.bsm){const m=byId[t.dataset.bsm];if(!m)return;if(m.variants.length===1){bsPick(m,0);return}BS.m=m;renderBS();$('#brandSheet .nudge-card').scrollTop=0;const c=$('#bsVarChips .chip');if(c)c.focus({preventScroll:true});return}
+  if(t.dataset.bsm){const m=byId[t.dataset.bsm];if(!m)return;if(m.lazy){rcReady(m).then(ok=>{if(ok&&t.isConnected)t.click()});return}if(m.variants.length===1){bsPick(m,0);return}BS.m=m;renderBS();$('#brandSheet .nudge-card').scrollTop=0;const c=$('#bsVarChips .chip');if(c)c.focus({preventScroll:true});return}
   if(t.dataset.bsv!=null&&BS.m)bsPick(BS.m,+t.dataset.bsv);
 });
 $('#bsQ').addEventListener('input',()=>{BS.q=$('#bsQ').value;BS.series='';renderBS()});
@@ -3836,7 +3851,7 @@ renderBrandTiles();renderFeed();paintToday();window.RC_LX=true;   // the hooks a
 function applyLive(j){
   if(S.vphone&&!S.vtoken)forgetPhone();
   LIVE=true;PRICE_GATE=!!j.price_gate;PRICES_IN=!j.price_gate;
-  CATALOG.length=0;j.models.forEach(m=>CATALOG.push({id:m.id,cat:m.cat,brand:m.brand,name:m.name,series:m.series||'',base:m.base,variants:m.variants,img:m.img||'',colors:Array.isArray(m.colors)?m.colors:[]}));
+  CATALOG.length=0;j.models.forEach(m=>CATALOG.push({lazy:!!m.lazy,id:m.id,cat:m.cat,brand:m.brand,name:m.name,series:m.series||'',base:m.base,variants:m.variants,img:m.img||'',colors:Array.isArray(m.colors)?m.colors:[]}));
   Object.keys(byId).forEach(k=>{delete byId[k]});CATALOG.forEach(m=>{byId[m.id]=m});buildAliases();sqIndex();
   const R=j.pricing;
   if(R){if(R.verified!=null)RULES.verified=+R.verified;if(R.floor)RULES.floor=R.floor}
@@ -3859,6 +3874,9 @@ function applyLive(j){
   if(!byId[S.modelId]){const f=CATALOG.find(m=>m.cat===S.cat)||CATALOG[0];S.modelId=f.id;S.cat=f.cat;S.vi=0}
   if(S.vi>=model().variants.length)S.vi=0;
   if(!byId[P.id])P.id=S.modelId;
+  /* the model the wizard starts on gets its storage options only when the wizard scrolls into view (nothing is asked for at page load) */
+  if(model().lazy&&!window.__rcWz){window.__rcWz=1;const go=()=>{const m=model();if(m.lazy)rcReady(m).then(ok=>{if(ok){S.vi=Math.min(S.vi,m.variants.length-1);renderVariants();renderCond();renderQuote();heroOffer()}})};
+    if('IntersectionObserver' in window&&$('#wizard')){const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){io.disconnect();go()}},{rootMargin:'200px'});io.observe($('#wizard'))}else go()}
   heroOffer();paintCity();paintBiz();renderTicker();renderCatTabs();renderBrands();renderModels();renderVariants();renderCond();renderQuote();labSummary();
   if(S.step===4)renderPickup();
   if(S.step===3)renderOffer();

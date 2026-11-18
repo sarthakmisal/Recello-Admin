@@ -73,7 +73,7 @@
     }
     return e;
   }
-  async function http(method, path, body, o) {
+  async function httpRaw(method, path, body, o) {
     o = o || {};
     var send = async function (tok) {
       var h = {};
@@ -94,6 +94,36 @@
     try { j = await r.json(); } catch (e) { /* empty body */ }
     if (!r.ok) throw httpError(r, j);
     return j;
+  }
+
+  // Politeness: at most 4 requests in flight, the same GET is asked once (answers are remembered for a few minutes),
+  // and the slow-changing lists (brands, models, questions, FAQs) are kept on the phone for hours (see cached()).
+  var gate = { n: 0, q: [] }, memo = {};
+  function slot() { return new Promise(function (go) { if (gate.n < 4) { gate.n++; go(); } else gate.q.push(go); }); }
+  function freeSlot() { var nx = gate.q.shift(); if (nx) nx(); else gate.n--; }
+  async function limited(method, path, body, o) { await slot(); try { return await httpRaw(method, path, body, o); } finally { freeSlot(); } }
+  function http(method, path, body, o) {
+    o = o || {};
+    if (method !== 'GET' || o.auth) return limited(method, path, body, o);
+    var ttl = o.ttl == null ? 300000 : o.ttl, hit = memo[path];
+    if (hit && Date.now() - hit.at < ttl) return hit.p;
+    var p = limited(method, path, body, o);
+    memo[path] = { at: Date.now(), p: p };
+    p.catch(function () { if (memo[path] && memo[path].p === p) delete memo[path]; });
+    return p;
+  }
+  // a value kept on this phone for `ttl` ms; if the server cannot be reached the last copy is used, however old
+  async function cached(key, ttl, make) {
+    var c = LS.get('c:' + key, null);
+    if (c && c.origin === ORIGIN && c.v2 && Date.now() - c.at < ttl) return c.v;
+    try {
+      var v = await make();
+      LS.set('c:' + key, { at: Date.now(), origin: ORIGIN, v2: 1, v: v });
+      return v;
+    } catch (e) {
+      if (c && c.origin === ORIGIN && c.v2) { log('using the saved copy of ' + key + ' (server not reachable)'); return c.v; }
+      throw e;
+    }
   }
   var needSession = function () { if (!sess.access) throw fail(AGAIN, 401); };
 
@@ -131,11 +161,8 @@
   }
 
   // ------------------------------------------------------------------ catalog + questions
-  var CAT = null;        // { models: [...], byId: {} }
   var QBY = {};          // page cat -> published questions, with the % cut of each option kept in DED
   var DED = {};          // qid -> { optionId: percent }
-  var TOP = {};          // model id -> highest storage price (shown after the OTP)
-  var catAt = 0;
 
   function mapQuestions(cat, rows) {
     var entry = Array.isArray(rows) ? rows[0] : null;
@@ -180,151 +207,126 @@
   }
 
 
-  // ---- the model list, built only from the routes your old app already used:
-  //   categories -> brands (get_brands/:cat) -> series (product/brand/:b/series) -> models of a series (product/brand/:b/:s/models,
-  //   get_models/:cat/:b/:s to know the category) -> storage + price of each model (product/:brand/:model).
-  // If the server also has GET /api/product/catalog (CHANGES.md) that one call is used instead: much faster.
-  var log = function (m) { try { console.info('[Recello]', m); } catch (e) { /* no console */ } };
+  // ---- what is loaded when the page opens, and when
+  //   at the start (a handful of calls, all kept on the phone for hours, so a repeat visit makes almost none):
+  //     categories + brands          GET /system/get_categories/true, GET /system/get_brands/:category
+  //     the model NAMES (one call)   GET /system/get_models           (for search and the brand pages)
+  //     the questions (per type)     GET /sell/questions/:modelSlug  (one model of each device type)
+  //     FAQs                         GET /faqs/active
+  //   when a customer taps a model:
+  //     its storage options + price  GET /product/:brand/:model
+  var M = {};            // model slug -> { slug, name, brand, brand_slug, cat, category_slug, image_url, cfgs? }
+  var STRUCT = null, SITE = null;
+  var HOUR = 3600e3;
   var arr = function (x) { return Array.isArray(x) ? x : (x && Array.isArray(x.data) ? x.data : []); };
-  async function inPool(items, n, fn) {
-    var i = 0, out = new Array(items.length);
-    await Promise.all(Array.apply(null, Array(Math.min(n, items.length))).map(async function () {
-      while (i < items.length) { var k = i++; out[k] = await fn(items[k], k); }
-    }));
-    return out;
-  }
-  async function rowsFromOldRoutes(cfg) {
-    var found = [], seenCat = {}, list = [];
+  var log = function (m) { try { console.info('[Recello]', m); } catch (e) { /* no console */ } };
+
+  async function discover(cfg) {
     var fromServer = {};
     try { arr(await http('GET', '/system/get_categories/true')).forEach(function (c) { var pc = c && c.slug && pageCat(c.slug); if (pc) (fromServer[pc] = fromServer[pc] || []).push(c.slug); }); } catch (e) { /* the usual slugs below cover it */ }
-    // per device type: the slugs your server named, then the usual ones, until one has brands
+    var byCat = {}, ok = {};
     await Promise.all(CATS.map(async function (pc) {
       var cands = (fromServer[pc] || []).concat(cfg.catmap[pc] || []);
       for (var i = 0; i < cands.length && !netFail; i++) {
         try {
-          var br = arr(await http('GET', '/system/get_brands/' + encodeURIComponent(cands[i]))).filter(function (x) { return x && x.slug && x.status !== false; });
-          if (br.length) { found.push({ slug: cands[i], pc: pc, brands: br }); return; }
+          var br = arr(await http('GET', '/system/get_brands/' + encodeURIComponent(cands[i]))).filter(function (x) { return x && x.slug && x.name && x.status !== false; });
+          if (br.length) { byCat[pc] = { slug: cands[i], brands: br.map(function (x) { return { name: x.name, slug: x.slug, url: x.url || null }; }) }; return; }
         } catch (e) { /* not a category on this server */ }
       }
     }));
-    found.forEach(function (f) { if (!seenCat[f.pc]) { seenCat[f.pc] = 1; list.push({ cat: f.slug, pc: f.pc, brands: f.brands }); } });
-    log('categories with brands: ' + (list.map(function (l) { return l.cat + ' (' + l.brands.length + ' brands)'; }).join(', ') || 'none'));
-    var models = [], seriesMemo = {};
-    for (var a = 0; a < list.length; a++) {
-      var L = list[a];
-      await inPool(L.brands, 4, async function (b) {
-        var series = await (seriesMemo[b.slug] = seriesMemo[b.slug] || http('GET', '/product/brand/' + encodeURIComponent(b.slug) + '/series').then(arr, function () { return []; }));
-        await inPool(series, 4, async function (se) {
-          var pair = await Promise.all([
-            http('GET', '/product/brand/' + encodeURIComponent(b.slug) + '/' + encodeURIComponent(se.slug) + '/models').catch(function () { return []; }),
-            http('GET', '/system/get_models/' + encodeURIComponent(L.cat) + '/' + encodeURIComponent(b.slug) + '/' + encodeURIComponent(se.slug)).catch(function () { return null; })
-          ]);
-          var inCat = pair[1] === null ? null : {}; if (pair[1]) arr(pair[1]).forEach(function (m) { inCat[m.slug] = 1; });
-          arr(pair[0]).forEach(function (m) {
-            if (!m || !m.slug || (inCat && !inCat[m.slug])) return;
-            models.push({ slug: m.slug, name: m.name, brand_slug: b.slug, brand: b.name, series: se.name, category_slug: L.cat, image_url: m.url || null });
-          });
-        });
-      });
-    }
-    log('models listed: ' + models.length + ', loading storage options and prices');
-    var rows = [];
-    await inPool(models, 8, async function (m) {
-      try {
-        var d = await http('GET', '/product/' + encodeURIComponent(m.brand_slug) + '/' + encodeURIComponent(m.slug));
-        var src = Array.isArray(d) ? d[0] : d;
-        var v = ((src && src.variants) || []).map(function (x) { return { id: x.id, name: x.name, base_price: x.base_price }; });
-        if (v.length) { m.variants = v; rows.push(m); }
-      } catch (e) { /* one model failing must not hide the rest */ }
-    });
-    return rows;
+    if (!Object.keys(byCat).length) throw fail(netFail ? 'Cannot reach ' + (ORIGIN || 'the server') + '. Check the address in environment.ts and that the backend is running.' : 'The server has no brands yet. Check that ' + (ORIGIN || 'this site') + ' is the Recello API and its catalogue is filled.');
+    return byCat;
   }
-  async function fetchRows(cfg) {
-    var fast = null; netFail = false;
-    try { fast = await http('GET', '/product/catalog'); } catch (e) { /* the server does not have that route: use the old routes */ }
-    if (fast && Array.isArray(fast.models) && fast.models.length) { log('catalog: one call (/api/product/catalog), ' + fast.models.length + ' models'); return fast.models; }
-    var cached = LS.get('rows', null);
-    if (cached && Date.now() - cached.at < 20 * 60000 && cached.origin === ORIGIN && cached.rows.length) { log('catalog: from this phone (under 20 minutes old)'); return cached.rows; }
-    var rows = await rowsFromOldRoutes(cfg);
-    if (!rows.length && netFail) throw fail('Cannot reach ' + (ORIGIN || 'the server') + '. Check the address in environment.ts and that the backend is running.');
-    if (!rows.length) throw fail('The server returned no phones. Check that ' + (ORIGIN || 'this site') + ' is the Recello API and its catalogue is filled.');
-    LS.set('rows', { at: Date.now(), origin: ORIGIN, rows: rows });
-    log('catalog: built from the old routes, ' + rows.length + ' models');
-    return rows;
+  // a brand sold in more than one device type (Apple, Samsung…): the model's name says which
+  function guessCat(cats, name) {
+    if (cats.length === 1) return cats[0];
+    var has = function (c) { return cats.indexOf(c) >= 0; };
+    if (has('tablet') && /\b(ipad|tab|pad|tablet)\b/i.test(name)) return 'tablet';
+    if (has('laptop') && /(macbook|laptop|notebook|chromebook|thinkpad|vivobook|zenbook|ideapad|\bbook\b)/i.test(name)) return 'laptop';
+    if (has('watch') && /(watch|\bband\b)/i.test(name)) return 'watch';
+    return has('phone') ? 'phone' : cats[0];
+  }
+  async function loadStructure() {
+    if (STRUCT) return STRUCT;
+    var cfg = await config();
+    var byCat = await cached('cats', 12 * HOUR, function () { return discover(cfg); });
+    var all = await cached('models', 6 * HOUR, function () { return http('GET', '/system/get_models', undefined, { ttl: 0 }).then(arr); });
+    var brandBy = {};
+    Object.keys(byCat).forEach(function (pc) {
+      byCat[pc].brands.forEach(function (b) { var k = b.name.toLowerCase(), e = brandBy[k] || (brandBy[k] = { name: b.name, slug: b.slug, cats: [] }); if (e.cats.indexOf(pc) < 0) e.cats.push(pc); });
+    });
+    var seen = {}, rows = [];
+    all.forEach(function (m) {
+      if (!m || !m.slug || !m.name || seen[m.slug]) return;
+      var b = brandBy[String(m.brand_name || '').toLowerCase()]; if (!b) return;   // brand not on sale
+      seen[m.slug] = 1;
+      var pc = guessCat(b.cats, String(m.name));
+      rows.push({ seq: +m.id || 0, id: m.slug, slug: m.slug, name: String(m.name), brand: b.name, brand_slug: b.slug, cat: pc, category_slug: byCat[pc].slug, image_url: m.image_url || m.url || null });
+    });
+    rows.sort(function (x, y) { return y.seq - x.seq; });   // newest first
+    // questions: one device type = one set. The first model of the type that has questions.
+    QBY = {}; DED = {};
+    await Promise.all(Object.keys(byCat).map(async function (pc) {
+      var cands = rows.filter(function (r) { return r.cat === pc; }).slice(0, 3);
+      for (var i = 0; i < cands.length; i++) {
+        try {
+          var raw = await cached('q:' + pc + ':' + cands[i].slug, 12 * HOUR, function () { return http('GET', '/sell/questions/' + encodeURIComponent(cands[i].slug), undefined, { ttl: 0 }); });
+          var list = mapQuestions(pc, raw);
+          if (list.length) { QBY[pc] = list; return; }
+        } catch (e) { /* try the next model */ }
+      }
+      QBY[pc] = [];
+    }));
+    M = {}; rows.forEach(function (r) { M[r.slug] = r; });
+    STRUCT = { byCat: byCat, rows: rows };
+    log('loaded: ' + Object.keys(byCat).length + ' device types, ' + rows.length + ' models (storage and prices load when a model is tapped)');
+    return STRUCT;
   }
 
-  async function loadCatalog() {
-    if (CAT && Date.now() - catAt < 60000) return CAT;
-    var cfg = await config();
-    var res = await Promise.all([
-      fetchRows(cfg),
-      http('GET', '/faqs/active').catch(function () { return []; })
-    ]);
-    var rows = res[0];
-    var faqs = Array.isArray(res[1]) ? res[1] : [];
-    // one request per device type for its questions: every model of a type is asked the same ones
-    var firstOf = {};
-    rows.forEach(function (r) { var c = pageCat(r.category_slug); if (c && !firstOf[c]) firstOf[c] = r; });
-    var present = Object.keys(firstOf);
-    QBY = {}; DED = {};
-    await Promise.all(present.map(function (c) {
-      return http('GET', '/sell/questions/' + encodeURIComponent(firstOf[c].slug))
-        .then(function (q) { QBY[c] = mapQuestions(c, q); })
-        .catch(function () { QBY[c] = []; });
-    }));
-    var models = [], byId = {};
-    for (var i = 0; i < rows.length; i++) {
-      var r = rows[i], c = pageCat(r.category_slug);
-      if (!c || !(QBY[c] || []).length || !r.slug) continue;   // a device type with no questions cannot be priced yet
-      var cfgs = (r.variants || []).map(function (v) { return { id: v.id, name: String(v.name), price: Math.round(+v.base_price) }; }).filter(function (v) { return v.price > 0; });
-      if (!cfgs.length) continue;
-      var m = {
-        id: r.slug, cat: c, brand: r.brand, name: r.name, series: r.series || '', brand_slug: r.brand_slug, category_slug: r.category_slug,
-        cfgs: cfgs, img: uploadPath(r.image_url) || await builtinPhoto(r.slug)
-      };
-      models.push(m); byId[m.id] = m; TOP[m.id] = Math.max.apply(null, cfgs.map(function (x) { return x.price; }));
-    }
-    // brand tiles: logos from your brand list (phones)
-    var tiles = [];
-    try {
-      var pr = firstOf.phone;
-      if (pr) {
-        var bl = await http('GET', '/system/get_brands/' + encodeURIComponent(pr.category_slug));
-        tiles = (Array.isArray(bl) ? bl : []).filter(function (b) { return b.status !== false; }).map(function (b) {
-          var logo = uploadPath(b.url); return { brand: b.name, logo: /^uploads\/[\w.%-]+$/.test(logo) ? logo : '' };
-        });
-      }
-    } catch (e) { /* tiles are optional */ }
-    var have = {}; models.forEach(function (m) { have[m.cat] = 1; });
-    var site = Object.assign({}, cfg.site);
-    site.cats = Object.assign({ tablet: have.tablet ? 'on' : 'soon', laptop: have.laptop ? 'on' : 'soon', watch: have.watch ? 'on' : 'soon' }, site.cats || {});
-    if (faqs.length && !site.faq) site.faq = faqs.map(function (f) { return { q: String(f.question || ''), a: String(f.answer || '') }; }).filter(function (f) { return f.q && f.a; });
-    if (tiles.length && !site.brandTiles) site.brandTiles = tiles;
-    CAT = { models: models, byId: byId, site: site };
-    catAt = Date.now();
-    return CAT;
+  var TOP = {};          // model slug -> highest storage price
+  var DETAIL = {};       // model slug -> { at }
+  // storage options + base price of one model, fetched when the customer taps it
+  async function detail(slug) {
+    var m = M[slug];
+    if (!m) { await loadStructure(); m = M[slug]; }
+    if (!m) throw fail('That model is not available right now.', 404);
+    var d = DETAIL[slug];
+    if (d && m.cfgs && Date.now() - d.at < 60000) return m;
+    var res = await http('GET', '/product/' + encodeURIComponent(m.brand_slug) + '/' + encodeURIComponent(m.slug), undefined, { ttl: 60000 });
+    var src = Array.isArray(res) ? res[0] : res;
+    var cfgs = ((src && src.variants) || []).map(function (v) { return { id: v.id, name: String(v.name), price: Math.round(+v.base_price) }; }).filter(function (v) { return v.price > 0; });
+    if (!cfgs.length) throw fail("We can't quote this model online right now. Please request a call back.", 404);
+    m.cfgs = cfgs; TOP[slug] = Math.max.apply(null, cfgs.map(function (x) { return x.price; })); DETAIL[slug] = { at: Date.now() };
+    return m;
+  }
+  var gatePrices = function (cfg) { return cfg.business.priceGate !== false && !sess.access; };
+
+  async function A_model_detail(b) {
+    var cfg = await config(), m = await detail(String(b.model || '')), top = TOP[m.slug];
+    return { variants: m.cfgs.map(function (c) { return [c.name, +(c.price / top).toFixed(6)]; }), base: gatePrices(cfg) ? 0 : top };
   }
 
   async function A_catalog() {
-    var cfg = await config(), cat = await loadCatalog();
-    var gate = cfg.business.priceGate !== false;
+    var cfg = await config(), st = await loadStructure();
+    var faqs = await cached('faqs', HOUR, function () { return http('GET', '/faqs/active', undefined, { ttl: 0 }).then(arr); }).catch(function () { return []; });
+    var tiles = ((st.byCat.phone || {}).brands || []).map(function (b) { var logo = uploadPath(b.url); return { brand: b.name, logo: /^uploads\/[\w.%-]+$/.test(logo) ? logo : '' }; });
+    var site = Object.assign({}, cfg.site);
+    site.cats = Object.assign({}, site.cats || {});
+    ['tablet', 'laptop', 'watch'].forEach(function (c) { if (!site.cats[c]) site.cats[c] = (QBY[c] || []).length ? 'on' : 'soon'; });
+    if (faqs.length && !site.faq) site.faq = faqs.map(function (f) { return { q: String(f.question || ''), a: String(f.answer || '') }; }).filter(function (f) { return f.q && f.a; });
+    if (tiles.length && !site.brandTiles) site.brandTiles = tiles;
+    var keep = st.rows.filter(function (r) { return (QBY[r.cat] || []).length || r.cat !== 'phone'; });
     return {
-      models: cat.models.map(function (m) {
-        var top = TOP[m.id];
-        return {
-          id: m.id, cat: m.cat, brand: m.brand, name: m.name, series: m.series,
-          base: gate && !sess.access ? 0 : top,
-          variants: m.cfgs.map(function (c) { return [c.name, +(c.price / top).toFixed(6)]; }),
-          img: m.img, colors: []
-        };
+      models: keep.map(function (r) {
+        var photo = uploadPath(r.image_url);
+        return { id: r.slug, cat: r.cat, brand: r.brand, name: r.name, series: '', base: 0, variants: [['Choose storage', 1]], img: photo, colors: [], lazy: true };
       }),
       questions: [].concat.apply([], CATS.map(function (c) { return QBY[c] || []; })).map(function (q) {
         return { id: q.id, title: q.title, help: q.help, type: q.type, cats: q.cats, brands: [], models: [], when: q.when, options: q.options.map(function (o) { return { id: o.id, label: o.label, img: o.img }; }) };
       }),
-      // questions are per device type, so the same id can appear once per type: ids are unique in the database, so no clash
       pricing: { verified: 1, floor: cfg.pricing.floor || {} },
-      business: cfg.business, repair: cfg.repair, growth: cfg.growth, site: cat.site, feed: [],
-      price_gate: gate, ai: false
+      business: cfg.business, repair: cfg.repair, growth: cfg.growth, site: site, feed: [],
+      price_gate: cfg.business.priceGate !== false, ai: false
     };
   }
 
@@ -390,17 +392,9 @@
     return { price: Math.max(0, Math.round(base - cut)), answers: picks, checks: checks };
   }
   async function modelFor(id, vi) {
-    var cat = await loadCatalog(), m = cat.byId[String(id)];
-    if (!m) throw fail('Pick your phone and storage.', 400);
+    var m = await detail(String(id));
     var cfg = m.cfgs[Math.max(0, parseInt(vi, 10) || 0)] || m.cfgs[0];
-    var base = cfg.price;
-    try {   // today's price from the server, in case it changed since the page loaded
-      var fresh = await http('GET', '/product/' + encodeURIComponent(m.brand_slug) + '/' + encodeURIComponent(m.id));
-      var row = Array.isArray(fresh) ? fresh[0] : fresh;
-      var f = row && (row.variants || []).filter(function (v) { return String(v.id) === String(cfg.id); })[0];
-      if (f && +f.base_price > 0) base = Math.round(+f.base_price);
-    } catch (e) { /* keep the price from the catalog */ }
-    return { m: m, cfg: cfg, base: base };
+    return { m: m, cfg: cfg, base: cfg.price };   // detail() reads today's price from the server (kept for a minute)
   }
   // the offer stays the same (or goes up, never down) for 7 days on this device: kept on this phone
   function hold(key, price) {
@@ -592,8 +586,8 @@
     return new Blob([arr], { type: m[1] });
   }
   var modelLine = function (b) {
-    var cat = CAT && CAT.byId[str(b.model, 160)];
-    return cat ? 'Model: ' + cat.name + (b.vi != null && cat.cfgs[b.vi | 0] ? ' · ' + cat.cfgs[b.vi | 0].name : '') : (b.model ? 'Model: ' + str(b.model, 100) : '');
+    var m = M[str(b.model, 160)];
+    return m ? 'Model: ' + m.name + (b.vi != null && m.cfgs && m.cfgs[b.vi | 0] ? ' · ' + m.cfgs[b.vi | 0].name : '') : (b.model ? 'Model: ' + str(b.model, 100) : '');
   };
   async function A_request(b) {
     var kind = str(b.kind, 20), cfg = await config(), biz = cfg.business;
@@ -664,7 +658,7 @@
   }
 
   var ACTIONS = {
-    catalog: A_catalog, pow: async function () { return {}; }, otp_send: A_otp_send, otp_verify: A_otp_verify, prices: A_prices,
+    catalog: A_catalog, model_detail: A_model_detail, pow: async function () { return {}; }, otp_send: A_otp_send, otp_verify: A_otp_verify, prices: A_prices,
     unlock: A_unlock, lead_reason: A_lead_reason, create_order: A_create_order, track: A_track, my_orders: A_my_orders,
     request: A_request, waitlist_join: A_waitlist_join,
     ref_code: async function () { throw fail('Referrals are not switched on.', 404); },

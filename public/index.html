@@ -1629,13 +1629,13 @@ html{overflow-x:clip}
 .brands-l::before{width:28px}.brands-l::after{flex:1}
 .brand-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
 /* brand tiles: white cards whose hard shadow takes the brand's colour; they pop in one after another */
-.bt{--tint:var(--ink);--a:34px;position:relative;display:grid;place-items:center;min-width:0;height:66px;padding:8px 10px;border:2px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);box-shadow:4px 4px 0 var(--tint);transition:transform .18s cubic-bezier(.3,1.4,.5,1),box-shadow .18s;cursor:pointer;overflow:hidden;isolation:isolate}
+.bt{--tint:var(--ink);--a:48px;position:relative;display:grid;place-items:center;min-width:0;height:88px;padding:10px 12px;border:2px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);box-shadow:4px 4px 0 var(--tint);transition:transform .18s cubic-bezier(.3,1.4,.5,1),box-shadow .18s;cursor:pointer;overflow:hidden;isolation:isolate}
 .bt::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(110% 80% at 50% 115%,color-mix(in srgb,var(--tint) 20%,transparent),transparent 70%);opacity:0;transition:opacity .2s}
 .bt:hover{transform:translate(-2px,-3px) rotate(-1.2deg);box-shadow:6px 7px 0 var(--tint)}
 .bt:hover::before,.bt:focus-visible::before{opacity:1}
 .bt:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--tint)}
 .bt:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
-.bt img{display:block;max-width:100%;max-height:32px;object-fit:contain}
+.bt img{display:block;max-width:100%;max-height:56px;object-fit:contain}
 .bt img.bl{width:min(100%,calc(var(--a) / var(--k,.55)));height:calc(var(--a) * var(--k,.55));max-height:100%;transition:transform .25s cubic-bezier(.3,1.4,.5,1)}
 .bt:hover img.bl{transform:scale(1.07)}
 .brand-row .bt{animation:btIn .5s cubic-bezier(.2,1.2,.4,1) both;animation-delay:calc(var(--i,0) * 50ms + 120ms)}
@@ -1723,7 +1723,7 @@ html{overflow-x:clip}
 @media (prefers-reduced-motion:reduce){.bsq-bar i{transition:none}}
 @media (max-width:760px){
   .brand-row{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 9px}
-  .bt{height:60px;border-radius:12px;padding:6px 8px;--a:36px;box-shadow:3px 3px 0 var(--tint)}
+  .bt{height:78px;border-radius:12px;padding:8px 9px;--a:42px;box-shadow:3px 3px 0 var(--tint)}
   .brand-row .bt-more{grid-column:1/-1;height:46px;flex-direction:row;justify-content:space-between;padding:0 16px}
   .brand-row .bt-more span{flex-direction:row;align-items:baseline;gap:8px}
   .bt-name{font-size:.82rem}.bt-name.long{font-size:.7rem}
