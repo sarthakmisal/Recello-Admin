@@ -1,0 +1,1 @@
+import{j as s}from"./index-DZDjnfKw.js";function x({title:a,subtitle:e,children:r}){return s.jsxs("div",{className:"ph",children:[s.jsxs("div",{children:[s.jsx("h2",{children:a}),e&&s.jsx("p",{children:e})]}),r&&s.jsx("div",{className:"acts",children:r})]})}export{x as P};
