@@ -137,7 +137,7 @@ This doc lists routes **as mounted in** `app.js`.
 **Questions**
 - `GET /api/sell/questions`
 - `GET /api/sell/question-contexts`
-- `GET /api/sell/questions/:modelSlug`
+- `GET /api/sell/questions/:modelSlug` (`?scope=all` returns every question of the model's device type, each with its own `scope: {brands:[names], models:[slugs]}`; used by the mobile app, which filters per model on the phone)
 - `GET /api/sell/questions/category/:category_id`
 - `POST /api/sell/questions`
 - `PUT /api/sell/questions/:id`

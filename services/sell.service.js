@@ -226,7 +226,8 @@ exports.getQuestions = async (query = {}) => {
                             SELECT jsonb_agg(
                                 jsonb_build_object(
                                     'id', cat.id,
-                                    'name', cat.name
+                                    'name', cat.name,
+                                    'slug', cat.slug
                                 )
                             )
                             FROM sell_category_questions scq
