@@ -1,5 +1,6 @@
 const pool = require('../config/database');
 const { sendEmail } = require('../providers/email.provider');
+const QX = require('./question.extra');
 
 const QUESTION_CONTEXT_MASTER = 'question_context';
 const LISTING_STATUS_MASTER = 'listing_status';
@@ -159,6 +160,7 @@ exports.deleteModelConfig = async (id) => {
 // ── Sell Questions ────────────────────────────────────────
 
 exports.getQuestions = async (query = {}) => {
+    await QX.ensure();
     const contextId = await resolveQuestionContextId(query);
     console.log('devaa', contextId);
 
@@ -205,6 +207,7 @@ exports.getQuestions = async (query = {}) => {
                                     'deduction', qo.price_deduction,
                                     'option_image_id', qo.option_image_id,
                                     'option_image_url', img.url,
+                                    'min_value', qo.min_value,
                                     'show',
                                     COALESCE(
                                         (
@@ -229,7 +232,14 @@ exports.getQuestions = async (query = {}) => {
                             FROM sell_category_questions scq
                             JOIN categories cat ON scq.category_id=cat.id
                             WHERE scq.question_id=que.id
-                        ) categories
+                        ) categories,
+                        (
+                            SELECT jsonb_build_object(
+                                'brand_ids', COALESCE(jsonb_agg(sc.brand_id) FILTER (WHERE sc.brand_id IS NOT NULL), '[]'::JSONB),
+                                'model_ids', COALESCE(jsonb_agg(sc.model_id) FILTER (WHERE sc.model_id IS NOT NULL), '[]'::JSONB)
+                            )
+                            FROM sell_question_scope sc WHERE sc.question_id=que.id
+                        ) scope
             FROM sell_questions que
             LEFT JOIN enum_master qctx ON que.context=qctx.id AND qctx.master_name='question_context'
             ${where}
@@ -261,17 +271,26 @@ exports.uploadImage = async ({ file, alt_text, uploaded_by } = {}) => {
     );
     return res.rows[0];
 };
-exports.getQuestionsByModel = async ({ modelSlug }) => {
+// ?scope=all  → every question of the model's device type, each with its own brand / model scope, and no model filtering.
+// (The mobile app loads one set per device type and filters per model on the phone.)
+exports.getQuestionsByModel = async ({ modelSlug }, query = {}) => {
     if (!modelSlug) throw { status: 400, message: "Model Slug is required" };
+    await QX.ensure();
+    const scopeFilter = query.scope === 'all' ? 'TRUE' : QX.scopeSql('que.id', 'm.id', 'm.brand_id');
     const questions = await pool.query(
         `
             SELECT m.name model,jsonb_agg(
                 jsonb_build_object(
                     'id', que.id,
                     'question', que.text,
+                    'description', que.description,
                     'que_type', que.input_type,
                     'context', que.context,
                     'context_label', qctx.option_name,
+                    'scope', jsonb_build_object(
+                        'brands', (SELECT COALESCE(jsonb_agg(sb.name), '[]'::JSONB) FROM sell_question_scope ss JOIN brands sb ON sb.id=ss.brand_id WHERE ss.question_id=que.id),
+                        'models', (SELECT COALESCE(jsonb_agg(sm.slug), '[]'::JSONB) FROM sell_question_scope ss JOIN models sm ON sm.id=ss.model_id WHERE ss.question_id=que.id)
+                    ),
                     'options',
                         (
                             SELECT jsonb_agg(
@@ -281,6 +300,7 @@ exports.getQuestionsByModel = async ({ modelSlug }) => {
                                     'deduction', qo.price_deduction,
                                     'option_image_id', qo.option_image_id,
                                     'option_image_url', img.url,
+                                    'min_value', qo.min_value,
                                     'show',
                                     COALESCE(
                                         (
@@ -295,12 +315,12 @@ exports.getQuestionsByModel = async ({ modelSlug }) => {
                             LEFT JOIN images img ON qo.option_image_id=img.id
                             WHERE qo.question_id = que.id
                     )
-                )
+                ) ORDER BY cq.sort_index, que.sort_index, que.id
             ) questions FROM models m
             JOIN sell_category_questions cq ON cq.category_id=m.category_id
             JOIN sell_questions que ON que.id=cq.question_id
             LEFT JOIN enum_master qctx ON que.context=qctx.id AND qctx.master_name='question_context'
-            WHERE m.slug=$1
+            WHERE m.slug=$1 AND que.is_active IS NOT FALSE AND ${scopeFilter}
             GROUP BY m.name
         `,
         [modelSlug]
@@ -310,6 +330,7 @@ exports.getQuestionsByModel = async ({ modelSlug }) => {
 
 exports.getQuestionsByCategory = async (category_id) => {
     if (!category_id) throw { status: 400, message: "Category ID is required" };
+    await QX.ensure();
     const questions = await pool.query(
         `SELECT sq.id, sq.text, sq.description, sq.input_type, sq.sort_index, sq.is_active,
                 sq.context, qctx.option_name context_label,
@@ -325,7 +346,7 @@ exports.getQuestionsByCategory = async (category_id) => {
     for (const q of questions.rows) {
         const opts = await pool.query(
             `SELECT sqo.id, sqo.text, sqo.price_deduction, sqo.sort_index,
-                    sqo.option_image_id, img.url option_image_url
+                    sqo.option_image_id, img.url option_image_url, sqo.min_value
              FROM sell_question_options sqo
              LEFT JOIN images img ON sqo.option_image_id=img.id
              WHERE question_id=$1
@@ -344,7 +365,7 @@ exports.createQuestion = async (data) => {
 
     const resolvedContextId = (await resolveQuestionContextId(data)) ?? 1;
 
-    const validTypes = ['yes_no', 'single_select', 'multi_select'];
+    const validTypes = ['yes_no', 'single_select', 'multi_select', 'battery'];
     if (!validTypes.includes(input_type)) throw { status: 400, message: "input_type must be one of: " + validTypes.join(', ') };
 
     const client = await pool.connect();
@@ -483,11 +504,58 @@ exports.deleteQuestion = async (id) => {
     return result.rows[0];
 };
 
+// ── Question scope: which brands / models a question is asked for ──
+// No rows = every brand / model of the question's categories. Brand rows and model rows narrow each other.
+
+exports.getQuestionScope = async (question_id) => {
+    await QX.ensure();
+    const q = await pool.query(`SELECT id FROM sell_questions WHERE id=$1`, [question_id]);
+    if (q.rowCount === 0) throw { status: 404, message: "Question not found" };
+    const brands = await pool.query(
+        `SELECT b.id, b.name, b.slug FROM sell_question_scope s JOIN brands b ON b.id=s.brand_id
+         WHERE s.question_id=$1 ORDER BY b.name`, [question_id]);
+    const models = await pool.query(
+        `SELECT m.id, m.name, m.slug, m.brand_id FROM sell_question_scope s JOIN models m ON m.id=s.model_id
+         WHERE s.question_id=$1 ORDER BY m.name`, [question_id]);
+    return { question_id: Number(question_id), brands: brands.rows, models: models.rows };
+};
+
+exports.setQuestionScope = async (question_id, data = {}) => {
+    await QX.ensure();
+    const ids = (v) => [...new Set((Array.isArray(v) ? v : []).map(Number).filter((n) => Number.isInteger(n) && n > 0))];
+    const brand_ids = ids(data.brand_ids), model_ids = ids(data.model_ids);
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        const q = await client.query(`SELECT id FROM sell_questions WHERE id=$1`, [question_id]);
+        if (q.rowCount === 0) throw { status: 404, message: "Question not found" };
+        if (brand_ids.length) {
+            const ok = await client.query(`SELECT id FROM brands WHERE id = ANY($1::bigint[])`, [brand_ids]);
+            if (ok.rowCount !== brand_ids.length) throw { status: 400, message: "One or more brand_ids do not exist" };
+        }
+        if (model_ids.length) {
+            const ok = await client.query(`SELECT id FROM models WHERE id = ANY($1::bigint[])`, [model_ids]);
+            if (ok.rowCount !== model_ids.length) throw { status: 400, message: "One or more model_ids do not exist" };
+        }
+        await client.query(`DELETE FROM sell_question_scope WHERE question_id=$1`, [question_id]);
+        for (const b of brand_ids) await client.query(`INSERT INTO sell_question_scope(question_id, brand_id) VALUES ($1, $2)`, [question_id, b]);
+        for (const m of model_ids) await client.query(`INSERT INTO sell_question_scope(question_id, model_id) VALUES ($1, $2)`, [question_id, m]);
+        await client.query('COMMIT');
+    } catch (e) {
+        await client.query('ROLLBACK').catch(() => {});
+        throw { status: e.status || 500, message: e.message || 'Failed to save scope' };
+    } finally {
+        client.release();
+    }
+    return exports.getQuestionScope(question_id);
+};
+
 // ── Question Options ──────────────────────────────────────
 
 exports.getQuestionOptions = async (question_id) => {
+    await QX.ensure();
     const result = await pool.query(
-        `SELECT sqo.id, sqo.text, sqo.price_deduction, sqo.sort_index,
+        `SELECT sqo.id, sqo.text, sqo.price_deduction, sqo.sort_index, sqo.min_value,
                 sqo.option_image_id, img.url option_image_url
          FROM sell_question_options sqo
          LEFT JOIN images img ON sqo.option_image_id=img.id
@@ -499,39 +567,50 @@ exports.getQuestionOptions = async (question_id) => {
 };
 
 exports.createQuestionOption = async (data) => {
-    const { question_id, text, price_deduction, sort_index, option_image_id } = data;
+    const { question_id, text, price_deduction, sort_index, option_image_id, min_value, image_preset } = data;
     if (!question_id || !text) throw { status: 400, message: "question_id and text are required" };
+    await QX.ensure();
 
     const qExists = await pool.query(`SELECT 1 FROM sell_questions WHERE id=$1`, [question_id]);
     if (qExists.rowCount === 0) throw { status: 404, message: "Question not found" };
 
+    // image_preset: a built-in picture by name (e.g. "screen-crack"); min_value: battery band start (95, 90 … 0), null = "Not sure"
+    const imageId = image_preset ? await QX.presetImageId(pool, image_preset) : (option_image_id ?? null);
     const result = await pool.query(
-        `INSERT INTO sell_question_options(question_id, text, price_deduction, option_image_id, sort_index)
-         VALUES ($1, $2, $3, $4, $5)
-         RETURNING id, text, price_deduction, option_image_id, sort_index`,
-        [question_id, text, price_deduction || 0, option_image_id ?? null, sort_index || 1]
+        `INSERT INTO sell_question_options(question_id, text, price_deduction, option_image_id, sort_index, min_value)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING id, text, price_deduction, option_image_id, sort_index, min_value`,
+        [question_id, text, price_deduction || 0, imageId, sort_index || 1, min_value ?? null]
     );
     return result.rows[0];
 };
 
 exports.updateQuestionOption = async (id, data) => {
-    const { text, price_deduction, sort_index, option_image_id } = data;
-    const hasOptionImageId = Object.prototype.hasOwnProperty.call(data || {}, 'option_image_id');
+    const { text, price_deduction, sort_index, option_image_id, min_value, image_preset } = data;
+    await QX.ensure();
+    const hasOptionImageId = Object.prototype.hasOwnProperty.call(data || {}, 'option_image_id') || image_preset !== undefined;
+    const hasMin = Object.prototype.hasOwnProperty.call(data || {}, 'min_value');
+    // image_preset: a built-in picture by name; send null (or "") to take the picture off
+    const newImageId = image_preset ? await QX.presetImageId(pool, image_preset)
+        : (image_preset !== undefined ? null : (option_image_id ?? null));
     const result = await pool.query(
         `UPDATE sell_question_options
          SET text=COALESCE($1, text),
              price_deduction=COALESCE($2, price_deduction),
              option_image_id=CASE WHEN $3 THEN $4 ELSE option_image_id END,
-             sort_index=COALESCE($5, sort_index)
+             sort_index=COALESCE($5, sort_index),
+             min_value=CASE WHEN $7 THEN $8::INT ELSE min_value END
          WHERE id=$6
-         RETURNING id, text, price_deduction, option_image_id, sort_index`,
+         RETURNING id, text, price_deduction, option_image_id, sort_index, min_value`,
         [
             text || null,
             price_deduction != null ? price_deduction : null,
             hasOptionImageId,
-            hasOptionImageId ? (option_image_id ?? null) : null,
+            hasOptionImageId ? newImageId : null,
             sort_index || null,
             id,
+            hasMin,
+            hasMin ? (min_value ?? null) : null,
         ]
     );
     if (result.rowCount === 0) throw { status: 404, message: "Option not found" };
@@ -675,6 +754,15 @@ exports.getQuestionsByCategorySlug = async (category_slug, query = {}) => {
     if (catRes.rowCount === 0) throw { status: 404, message: "Category not found" };
     const category_id = catRes.rows[0].id;
 
+    // optional ?model_slug=… : only the questions that are asked for that model (see sell_question_scope)
+    await QX.ensure();
+    let flowModel = null;
+    if (query.model_slug) {
+        const mr = await pool.query(`SELECT id, brand_id FROM models WHERE slug=$1`, [query.model_slug]);
+        if (mr.rowCount === 0) throw { status: 404, message: "Model not found" };
+        flowModel = mr.rows[0];
+    }
+
     // Ensure yes/no questions used in sell flow have options (idempotent backfill)
     {
         const values = [category_id];
@@ -714,6 +802,11 @@ exports.getQuestionsByCategorySlug = async (category_slug, query = {}) => {
             contextClause = ` AND sq.context = ANY($${values.length}::INT[])`;
         }
 
+        if (flowModel) {
+            values.push(flowModel.id, flowModel.brand_id);
+            contextClause += ` AND ${QX.scopeSql('sq.id', `$${values.length - 1}`, `$${values.length}`)}`;
+        }
+
         var questions = await pool.query(
             `SELECT sq.id, sq.text, sq.description, sq.input_type, sq.sort_index,
                     sq.context, qctx.option_name context_label
@@ -731,7 +824,7 @@ exports.getQuestionsByCategorySlug = async (category_slug, query = {}) => {
     for (const q of questions.rows) {
         const opts = await pool.query(
             `SELECT sqo.id, sqo.text, sqo.price_deduction, sqo.sort_index,
-                    sqo.option_image_id, img.url option_image_url
+                    sqo.option_image_id, img.url option_image_url, sqo.min_value
              FROM sell_question_options sqo
              LEFT JOIN images img ON sqo.option_image_id=img.id
              WHERE sqo.question_id=$1
@@ -775,6 +868,11 @@ exports.getQuestionsByCategorySlug = async (category_slug, query = {}) => {
                 contextClause = ` AND context = ANY($${values.length}::INT[])`;
             }
 
+            if (flowModel) {
+                values.push(flowModel.id, flowModel.brand_id);
+                contextClause += ` AND ${QX.scopeSql('sq.id', `$${values.length - 1}`, `$${values.length}`)}`;
+            }
+
             var qRes = await pool.query(
                 `SELECT sq.id, sq.text, sq.description, sq.input_type, sq.sort_index,
                         sq.context, qctx.option_name context_label
@@ -789,7 +887,7 @@ exports.getQuestionsByCategorySlug = async (category_slug, query = {}) => {
         const cq = qRes.rows[0];
         const opts = await pool.query(
             `SELECT sqo.id, sqo.text, sqo.price_deduction, sqo.sort_index,
-                    sqo.option_image_id, img.url option_image_url
+                    sqo.option_image_id, img.url option_image_url, sqo.min_value
              FROM sell_question_options sqo
              LEFT JOIN images img ON sqo.option_image_id=img.id
              WHERE sqo.question_id=$1
@@ -834,14 +932,14 @@ exports.calculateSellPrice = async (data) => {
     const basePrice = parseFloat(configRes.rows[0].base_price);
     let finalPrice = basePrice;
 
-    // Sum up flat deductions from selected options
+    // price_deduction is a PERCENT of the base price (createSellListing and the merchant re-quote already work that way)
     for (const ans of answers) {
         const optRes = await pool.query(
             `SELECT price_deduction FROM sell_question_options WHERE id=$1 AND question_id=$2`,
             [ans.option_id, ans.question_id]
         );
         if (optRes.rowCount > 0) {
-            finalPrice -= parseFloat(optRes.rows[0].price_deduction);
+            finalPrice -= (basePrice * parseFloat(optRes.rows[0].price_deduction)) / 100;
         }
     }
 

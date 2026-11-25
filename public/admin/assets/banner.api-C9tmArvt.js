@@ -1,1 +1,0 @@
-import{av as n}from"./index-B2cgdZCJ.js";const t=()=>n.get("/api/banners"),r=a=>n.post("/api/banners",a),p=a=>n.delete(`/api/banners/${a}`),o=a=>n.get(`/api/banners/${a}`),c=(a,e)=>n.put(`/api/banners/${a}`,e);export{o as a,r as c,p as d,t as g,c as u};

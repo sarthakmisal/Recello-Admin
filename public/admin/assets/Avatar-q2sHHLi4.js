@@ -1,1 +1,0 @@
-import{r as i,j as a,an as x}from"./index-B2cgdZCJ.js";function m({src:s,name:r,size:e="",status:t}){const[n,o]=i.useState(!1);return a.jsxs("span",{className:`avatar ${e}`,children:[s&&!n?a.jsx("img",{src:s,alt:"",onError:()=>o(!0)}):x(r),t&&a.jsx("span",{className:`st ${t}`})]})}export{m as A};

@@ -16,6 +16,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const pool = require('../config/database');
 const S = require('./web.store');
+const QX = require('./question.extra');
 const authService = require('./auth.service');
 
 const fail = (status, message, extra) => Object.assign({ status, message }, extra || {});
@@ -129,10 +130,11 @@ async function loadQuestions() {
               WHERE sqo.question_id = ANY($1::int[]) ORDER BY sqo.sort_index, sqo.id`, [ids]);
         or.rows.forEach((o) => {
             const q = byQ.get(o.question_id);
-            if (q) q.options.push({ id: String(o.id), label: String(o.text), deduct: +o.price_deduction || 0, img: uploadPath(o.url), active: true });
+            if (q) q.options.push({ id: String(o.id), label: String(o.text), deduct: +o.price_deduction || 0, img: QX.optImg(o.url, uploadPath), active: true });
         });
     }
-    const list = [...byQ.values()].filter((q) => q.options.length);
+    await QX.enrich(byQ); // brand / model scope + battery bands
+    const list = [...byQ.values()].filter((q) => q.options.length || q.type === 'battery');
     // a device type with no questions of its own uses the page's built-in questions
     const have = new Set();
     list.forEach((q) => q.cats.forEach((c) => have.add(c)));
@@ -496,7 +498,14 @@ async function createSell(req, body) {
         const checks = [];
         for (const q of qFor(w.list, w.m)) {
             const picked = (Array.isArray(w.ans[q.id]) ? w.ans[q.id].map(String) : []);
-            if (q.type === 'battery') { checks.push({ q: q.title, a: [picked[0] === 'unsure' ? 'Not sure' : picked[0] + '%'] }); continue; }
+            if (q.type === 'battery') {
+                checks.push({ q: q.title, a: [picked[0] === 'unsure' ? 'Not sure' : picked[0] + '%'] });
+                if (q.db) { // your own battery question: the band they fall in is saved like any other answer
+                    const band = picked[0] === 'unsure' ? { oid: q.unsureOid } : [...(q.bands || [])].sort((x, y) => y.min - x.min).find((x) => +picked[0] >= x.min);
+                    if (band && band.oid) await client.query('INSERT INTO sell_listing_answers (listing_id, question_id, option_id) VALUES ($1, $2, $3)', [listingId, +q.id, +band.oid]);
+                }
+                continue;
+            }
             const opts = q.options.filter((o) => picked.includes(o.id));
             checks.push({ q: q.title, a: opts.map((o) => o.label) });
             if (q.db) for (const o of opts) {

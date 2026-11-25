@@ -143,6 +143,17 @@ This doc lists routes **as mounted in** `app.js`.
 - `PUT /api/sell/questions/:id`
 - `DELETE /api/sell/questions/:id`
 
+**Question scope — which brands / models a question is asked for** (no rows = every brand / model of its categories)
+- `GET /api/sell/questions/:id/scope` → `{ question_id, brands:[{id,name,slug}], models:[{id,name,slug,brand_id}] }`
+- `PUT /api/sell/questions/:id/scope` — protected. Body `{ "brand_ids": [2], "model_ids": [] }`; replaces the whole scope. Brand ids and model ids narrow each other (brand Apple + model X = only X).
+- `GET /api/sell/flow/:category_slug?model_slug=…` and `GET /api/sell/questions/:modelSlug` only return the questions asked for that model. Without `model_slug` the flow returns everything, as before.
+- `GET /api/sell/questions` now also returns `scope: { brand_ids, model_ids }` per question and `min_value` per option.
+
+**Battery-health question** — create a question with `input_type: "battery"`; its options are the bands:
+`{ "text": "85 – 89%", "price_deduction": 2, "min_value": 85 }` (95, 90, 85, 80, 0). An option with `min_value: null` is "Not sure". The seller answers with the band option like any other option, so `calculate-price` and the merchant re-quote need no change.
+
+**Option pictures** — `POST/PUT /api/sell/options` accept `image_preset: "screen-crack"` (a picture built into the website, a-z 0-9 dashes) instead of `option_image_id`; send `null` on PUT to remove it. Upload pictures (`option_image_id`) work as before. `min_value` can be sent on both.
+
 **Images**
 - `POST /api/sell/images` — `multipart/form-data` field: `image`
 
@@ -166,7 +177,7 @@ This doc lists routes **as mounted in** `app.js`.
 - `GET /api/sell/flow/:category_slug`
 
 **Pricing**
-- `POST /api/sell/calculate-price`
+- `POST /api/sell/calculate-price` — `price_deduction` of each chosen option is a **percent** of the config's `base_price` (same as listing creation and the merchant re-quote)
 
 **Listings (leads)**
 - `GET /api/sell/listings`
@@ -364,3 +375,4 @@ Customer offer response body:
 ## Not mounted in `app.js`
 
 - `routes/ui.routes.js` — not mounted (contains `GET /home_banners`)
+- `routes/web.routes.js` (`/api/web`, the website / Android app API) — not mounted in this `app.js`; add `app.use('/api/web', require('./routes/web.routes'));` next to `/api/tech` to turn it on

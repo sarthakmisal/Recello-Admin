@@ -1,1 +1,0 @@
-import{j as s}from"./index-B2cgdZCJ.js";function x({label:n,required:a,error:e,hint:l,children:r,className:c=""}){return s.jsxs("label",{className:`fld ${c}`,children:[n&&s.jsxs("span",{children:[n," ",a&&s.jsx("b",{children:"*"})]}),r,e?s.jsx("span",{className:"err",children:e}):l?s.jsx("span",{className:"hint",children:l}):null]})}export{x as F};

@@ -1,0 +1,1268 @@
+{
+ "_note": "Defaults for the technician app API (/api/tech). Override any top-level key with a row in web_settings (key = 'tech', value = JSON). Percent cuts are never sent to the app.",
+ "checks": [
+  {
+   "id": "frame",
+   "group": "body",
+   "title": "Dents or bends on the frame",
+   "help": "Look along every edge and corner in good light.",
+   "type": "single",
+   "cats": [
+    "phone",
+    "tablet",
+    "laptop"
+   ],
+   "covers": "body",
+   "active": true,
+   "options": [
+    {
+     "id": "frame-ok",
+     "label": "No dents",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:frame-ok",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "frame-dent",
+     "label": "1 or 2 small dents",
+     "deduct": 2,
+     "flat": 0,
+     "img": "preset:frame-dent",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "frame-dents",
+     "label": "Many dents or a dented corner",
+     "deduct": 5,
+     "flat": 0,
+     "img": "preset:frame-dents",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "frame-bent",
+     "label": "Bent: doesn't lie flat",
+     "deduct": 12,
+     "flat": 0,
+     "img": "preset:frame-bent",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    }
+   ]
+  },
+  {
+   "id": "back",
+   "group": "body",
+   "title": "Back glass or back panel",
+   "help": "Tilt it under a light to see hairline cracks.",
+   "type": "single",
+   "cats": [
+    "phone",
+    "tablet"
+   ],
+   "covers": "body",
+   "active": true,
+   "options": [
+    {
+     "id": "back-ok",
+     "label": "Perfect",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:back-ok",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "back-scratch",
+     "label": "Light scratches",
+     "deduct": 1,
+     "flat": 0,
+     "img": "preset:back-scratch",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "back-crack",
+     "label": "Cracked back glass",
+     "deduct": 8,
+     "flat": 0,
+     "img": "preset:back-crack",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "back-loose",
+     "label": "Back replaced, lifting or missing",
+     "deduct": 10,
+     "flat": 0,
+     "img": "preset:back-loose",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    }
+   ]
+  },
+  {
+   "id": "ring",
+   "group": "body",
+   "title": "Camera bump and ring",
+   "help": "Run a fingernail round the camera ring.",
+   "type": "single",
+   "cats": [
+    "phone",
+    "tablet"
+   ],
+   "covers": "",
+   "active": true,
+   "options": [
+    {
+     "id": "ring-ok",
+     "label": "No marks",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:ring-ok",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "ring-scratch",
+     "label": "Scratched ring",
+     "deduct": 1,
+     "flat": 0,
+     "img": "preset:ring-scratch",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "ring-bent",
+     "label": "Bent or dented ring",
+     "deduct": 3,
+     "flat": 0,
+     "img": "preset:ring-bent",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    }
+   ]
+  },
+  {
+   "id": "buttons",
+   "group": "body",
+   "title": "Buttons",
+   "help": "Press each one: it should click.",
+   "type": "multi",
+   "cats": [
+    "phone",
+    "tablet",
+    "watch"
+   ],
+   "covers": "issues",
+   "active": true,
+   "options": [
+    {
+     "id": "btn-ok",
+     "label": "All buttons work",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:no-issues",
+     "photo": false,
+     "none": true,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "btn-power",
+     "label": "Power button",
+     "deduct": 3,
+     "flat": 0,
+     "img": "preset:button-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "btn-vol",
+     "label": "Volume buttons",
+     "deduct": 2,
+     "flat": 0,
+     "img": "preset:button-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "btn-mute",
+     "label": "Silent switch or action button",
+     "deduct": 1,
+     "flat": 0,
+     "img": "preset:button-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "btn-stuck",
+     "label": "A button is stuck or missing",
+     "deduct": 4,
+     "flat": 0,
+     "img": "preset:btn-missing",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    }
+   ]
+  },
+  {
+   "id": "ports",
+   "group": "body",
+   "title": "Ports and grills",
+   "help": "Plug in a charger; look into the speaker holes.",
+   "type": "multi",
+   "cats": [
+    "phone",
+    "tablet"
+   ],
+   "covers": "",
+   "active": true,
+   "options": [
+    {
+     "id": "port-ok",
+     "label": "Clean, charger fits firmly",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:no-issues",
+     "photo": false,
+     "none": true,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "port-loose",
+     "label": "Charging port loose",
+     "deduct": 3,
+     "flat": 0,
+     "img": "preset:charge-issue",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "port-dirty",
+     "label": "Speaker grill or port blocked",
+     "deduct": 1,
+     "flat": 0,
+     "img": "preset:port-dirty",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "port-jack",
+     "label": "Headphone jack",
+     "deduct": 1,
+     "flat": 0,
+     "img": "preset:sound-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    }
+   ]
+  },
+  {
+   "id": "sim",
+   "group": "body",
+   "title": "SIM tray",
+   "help": "",
+   "type": "single",
+   "cats": [
+    "phone",
+    "tablet"
+   ],
+   "covers": "",
+   "active": true,
+   "options": [
+    {
+     "id": "sim-ok",
+     "label": "In place",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:sim-ok",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "sim-missing",
+     "label": "Missing",
+     "deduct": 0,
+     "flat": 150,
+     "img": "preset:sim-missing",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    }
+   ]
+  },
+  {
+   "id": "display",
+   "group": "screen",
+   "title": "Screen spots and touch",
+   "help": "Show a white page, then drag one icon across the whole screen.",
+   "type": "multi",
+   "cats": [
+    "phone",
+    "tablet",
+    "laptop"
+   ],
+   "covers": "screen",
+   "active": true,
+   "options": [
+    {
+     "id": "disp-ok",
+     "label": "Clean, touch works everywhere",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:disp-ok",
+     "photo": false,
+     "none": true,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "disp-spot",
+     "label": "White or dark spot",
+     "deduct": 6,
+     "flat": 0,
+     "img": "preset:disp-spot",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "disp-touch",
+     "label": "Ghost touch or dead touch area",
+     "deduct": 12,
+     "flat": 0,
+     "img": "preset:disp-touch",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "disp-burn",
+     "label": "Burn-in: a shadow image stays",
+     "deduct": 8,
+     "flat": 0,
+     "img": "preset:disp-burn",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "disp-tint",
+     "label": "Green or pink tint",
+     "deduct": 6,
+     "flat": 0,
+     "img": "preset:disp-tint",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "disp-lines",
+     "label": "Lines on the display",
+     "deduct": 15,
+     "flat": 0,
+     "img": "preset:screen-display",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "disp-flicker",
+     "label": "Flickering or dim",
+     "deduct": 8,
+     "flat": 0,
+     "img": "preset:disp-flicker",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "disp-lift",
+     "label": "Screen lifting from the frame",
+     "deduct": 10,
+     "flat": 0,
+     "img": "preset:disp-lift",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "disp-bleed",
+     "label": "Light leaking at the edges",
+     "deduct": 4,
+     "flat": 0,
+     "img": "preset:disp-bleed",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    }
+   ]
+  },
+  {
+   "id": "lens",
+   "group": "camera",
+   "title": "Camera lens glass",
+   "help": "Open the camera and take one photo of something white.",
+   "type": "single",
+   "cats": [
+    "phone",
+    "tablet"
+   ],
+   "covers": "",
+   "active": true,
+   "options": [
+    {
+     "id": "lens-ok",
+     "label": "Clear, photos sharp",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:lens-ok",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "lens-scratch",
+     "label": "Scratched lens glass",
+     "deduct": 3,
+     "flat": 0,
+     "img": "preset:lens-scratch",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "lens-crack",
+     "label": "Cracked lens glass",
+     "deduct": 6,
+     "flat": 0,
+     "img": "preset:lens-crack",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "lens-blur",
+     "label": "Blurry photos or spots in photos",
+     "deduct": 10,
+     "flat": 0,
+     "img": "preset:lens-blur",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    }
+   ]
+  },
+  {
+   "id": "cams",
+   "group": "camera",
+   "title": "Cameras",
+   "help": "Open the camera; switch to every lens and to the front.",
+   "type": "multi",
+   "cats": [
+    "phone",
+    "tablet"
+   ],
+   "covers": "issues",
+   "active": true,
+   "options": [
+    {
+     "id": "cams-ok",
+     "label": "All cameras work",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:no-issues",
+     "photo": false,
+     "none": true,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "cam-main",
+     "label": "Main camera doesn't open",
+     "deduct": 12,
+     "flat": 0,
+     "img": "preset:camera-off",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "cam-ultra",
+     "label": "Ultra-wide doesn't work",
+     "deduct": 6,
+     "flat": 0,
+     "img": "preset:camera-off",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "cam-tele",
+     "label": "Zoom camera doesn't work",
+     "deduct": 6,
+     "flat": 0,
+     "img": "preset:camera-off",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "cam-focus",
+     "label": "Doesn't focus or shakes",
+     "deduct": 8,
+     "flat": 0,
+     "img": "preset:lens-blur",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "cam-selfie",
+     "label": "Front camera",
+     "deduct": 6,
+     "flat": 0,
+     "img": "preset:selfie-issue",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "cam-flash",
+     "label": "Torch or flash",
+     "deduct": 1,
+     "flat": 0,
+     "img": "preset:flash-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    }
+   ]
+  },
+  {
+   "id": "batt",
+   "group": "battery",
+   "title": "Battery and charging",
+   "help": "Look at the back from the side: a swollen battery lifts it.",
+   "type": "multi",
+   "cats": [
+    "phone",
+    "tablet",
+    "laptop",
+    "watch"
+   ],
+   "covers": "issues",
+   "active": true,
+   "options": [
+    {
+     "id": "batt-ok",
+     "label": "No problem",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:no-issues",
+     "photo": false,
+     "none": true,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "batt-swell",
+     "label": "Battery swollen: back or screen lifting",
+     "deduct": 15,
+     "flat": 0,
+     "img": "preset:batt-swell",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "batt-msg",
+     "label": "\"Service\" or \"unknown battery\" message",
+     "deduct": 4,
+     "flat": 0,
+     "img": "preset:battery-low",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "batt-drain",
+     "label": "Drains fast or switches off",
+     "deduct": 5,
+     "flat": 0,
+     "img": "preset:battery-low",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "batt-nocharge",
+     "label": "Doesn't charge",
+     "deduct": 10,
+     "flat": 0,
+     "img": "preset:charge-issue",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "batt-wireless",
+     "label": "Wireless charging",
+     "deduct": 2,
+     "flat": 0,
+     "img": "preset:charge-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    }
+   ]
+  },
+  {
+   "id": "audio",
+   "group": "sound",
+   "title": "Sound and calls",
+   "help": "Play a video, then make a test call.",
+   "type": "multi",
+   "cats": [
+    "phone",
+    "tablet",
+    "laptop",
+    "watch"
+   ],
+   "covers": "issues",
+   "active": true,
+   "options": [
+    {
+     "id": "audio-ok",
+     "label": "All sound works",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:no-issues",
+     "photo": false,
+     "none": true,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "au-ear",
+     "label": "Earpiece: can't hear in calls",
+     "deduct": 5,
+     "flat": 0,
+     "img": "preset:sound-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "au-loud",
+     "label": "Loudspeaker",
+     "deduct": 4,
+     "flat": 0,
+     "img": "preset:sound-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "au-mic",
+     "label": "Microphone",
+     "deduct": 5,
+     "flat": 0,
+     "img": "preset:sound-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "au-crack",
+     "label": "Crackling sound",
+     "deduct": 2,
+     "flat": 0,
+     "img": "preset:sound-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    }
+   ]
+  },
+  {
+   "id": "net",
+   "group": "network",
+   "title": "Network and wireless",
+   "help": "Put in a SIM, turn on Wi-Fi and Bluetooth.",
+   "type": "multi",
+   "cats": [
+    "phone",
+    "tablet",
+    "laptop",
+    "watch"
+   ],
+   "covers": "",
+   "active": true,
+   "options": [
+    {
+     "id": "net-ok",
+     "label": "All work",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:no-issues",
+     "photo": false,
+     "none": true,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "net-sim",
+     "label": "No network or SIM not read",
+     "deduct": 10,
+     "flat": 0,
+     "img": "preset:network-issue",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "net-wifi",
+     "label": "Wi-Fi",
+     "deduct": 5,
+     "flat": 0,
+     "img": "preset:wifi-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "net-bt",
+     "label": "Bluetooth",
+     "deduct": 3,
+     "flat": 0,
+     "img": "preset:wifi-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "net-gps",
+     "label": "GPS / location",
+     "deduct": 2,
+     "flat": 0,
+     "img": "preset:gps-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "net-nfc",
+     "label": "NFC / tap to pay",
+     "deduct": 2,
+     "flat": 0,
+     "img": "preset:nfc-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    }
+   ]
+  },
+  {
+   "id": "sens",
+   "group": "sensors",
+   "title": "Face ID, fingerprint and sensors",
+   "help": "Unlock with face or finger; turn the phone sideways.",
+   "type": "multi",
+   "cats": [
+    "phone",
+    "tablet",
+    "watch"
+   ],
+   "covers": "",
+   "active": true,
+   "options": [
+    {
+     "id": "sens-ok",
+     "label": "All work",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:no-issues",
+     "photo": false,
+     "none": true,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "sens-bio",
+     "label": "Face ID or fingerprint",
+     "deduct": 8,
+     "flat": 0,
+     "img": "preset:bio-issue",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "sens-prox",
+     "label": "Screen stays on during calls",
+     "deduct": 3,
+     "flat": 0,
+     "img": "preset:prox-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "sens-rotate",
+     "label": "Auto-rotate",
+     "deduct": 2,
+     "flat": 0,
+     "img": "preset:rotate-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "sens-vibe",
+     "label": "Vibration",
+     "deduct": 2,
+     "flat": 0,
+     "img": "preset:vibe-issue",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    }
+   ]
+  },
+  {
+   "id": "water",
+   "group": "water",
+   "title": "Signs of water",
+   "help": "Look inside the SIM slot with a torch.",
+   "type": "single",
+   "cats": [
+    "phone",
+    "tablet",
+    "laptop",
+    "watch"
+   ],
+   "covers": "",
+   "active": true,
+   "options": [
+    {
+     "id": "water-ok",
+     "label": "None",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:water-ok",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "water-marks",
+     "label": "Moisture or marks under the screen or lens",
+     "deduct": 10,
+     "flat": 0,
+     "img": "preset:water",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "water-red",
+     "label": "Water sticker in the SIM slot is red",
+     "deduct": 15,
+     "flat": 0,
+     "img": "preset:water-red",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    }
+   ]
+  },
+  {
+   "id": "lock",
+   "group": "lock",
+   "title": "Locks and accounts",
+   "help": "Settings → your name / Accounts. Signed out?",
+   "type": "single",
+   "cats": [
+    "phone",
+    "tablet",
+    "laptop",
+    "watch"
+   ],
+   "covers": "",
+   "active": true,
+   "options": [
+    {
+     "id": "lock-ok",
+     "label": "Signed out, no locks",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:lock-ok",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "lock-carrier",
+     "label": "Locked to one network",
+     "deduct": 10,
+     "flat": 0,
+     "img": "preset:lock-sim",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "lock-acc",
+     "label": "iCloud or Google lock can't be removed",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:lock-acc",
+     "photo": true,
+     "none": false,
+     "block": true,
+     "active": true
+    },
+    {
+     "id": "lock-mdm",
+     "label": "Company (MDM) lock",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:lock-mdm",
+     "photo": true,
+     "none": false,
+     "block": true,
+     "active": true
+    },
+    {
+     "id": "lock-imei",
+     "label": "IMEI blocked or reported lost",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:imei-block",
+     "photo": true,
+     "none": false,
+     "block": true,
+     "active": true
+    }
+   ]
+  },
+  {
+   "id": "papers",
+   "group": "papers",
+   "title": "Box and bill",
+   "help": "Check the IMEI on the box or bill against *#06#.",
+   "type": "single",
+   "cats": [
+    "phone",
+    "tablet",
+    "laptop",
+    "watch"
+   ],
+   "covers": "",
+   "active": true,
+   "options": [
+    {
+     "id": "papers-ok",
+     "label": "Match, or none given",
+     "deduct": 0,
+     "flat": 0,
+     "img": "preset:box",
+     "photo": false,
+     "none": false,
+     "block": false,
+     "active": true
+    },
+    {
+     "id": "papers-mismatch",
+     "label": "Box or bill IMEI doesn't match",
+     "deduct": 2,
+     "flat": 0,
+     "img": "preset:box-mismatch",
+     "photo": true,
+     "none": false,
+     "block": false,
+     "active": true
+    }
+   ]
+  }
+ ],
+ "groups": [
+  {
+   "id": "body",
+   "label": "Body"
+  },
+  {
+   "id": "screen",
+   "label": "Screen"
+  },
+  {
+   "id": "camera",
+   "label": "Cameras"
+  },
+  {
+   "id": "battery",
+   "label": "Battery"
+  },
+  {
+   "id": "sound",
+   "label": "Sound"
+  },
+  {
+   "id": "network",
+   "label": "Network"
+  },
+  {
+   "id": "sensors",
+   "label": "Face ID & sensors"
+  },
+  {
+   "id": "water",
+   "label": "Water"
+  },
+  {
+   "id": "lock",
+   "label": "Locks"
+  },
+  {
+   "id": "papers",
+   "label": "Box & bill"
+  },
+  {
+   "id": "laptop",
+   "label": "Laptop"
+  },
+  {
+   "id": "watch",
+   "label": "Watch"
+  }
+ ],
+ "extras": [
+  {
+   "id": "skin",
+   "label": "Back skin or phone art",
+   "help": "A printed back skin for the customer's new phone.",
+   "price": 299,
+   "img": "preset:x-skin",
+   "active": true
+  },
+  {
+   "id": "guard",
+   "label": "Tempered glass screen guard",
+   "help": "Fitted on the spot.",
+   "price": 199,
+   "img": "preset:x-guard",
+   "active": true
+  },
+  {
+   "id": "polish",
+   "label": "Scratch polish",
+   "help": "Polishes light scratches on the customer's other phone.",
+   "price": 249,
+   "img": "preset:x-polish",
+   "active": true
+  }
+ ],
+ "rules": {
+  "codes": true,
+  "photos_front_back": true,
+  "photo_on_cut": true,
+  "imei_photo": true,
+  "bag": true,
+  "max_km": 2,
+  "cash_max": 0,
+  "flag_drop_pct": 15,
+  "flag_changes": 3,
+  "visit_minutes_min": 4
+ },
+ "points": {
+  "word": "Points",
+  "free": false,
+  "slabs": [
+   {
+    "upto": 10000,
+    "pts": 300
+   },
+   {
+    "upto": 20000,
+    "pts": 500
+   },
+   {
+    "upto": 100000,
+    "pts": 1000
+   },
+   {
+    "upto": 150000,
+    "pts": 1500
+   }
+  ],
+  "above": 1500
+ },
+ "special": {
+  "label": "Special Price",
+  "wait_min": 15,
+  "asks": 3,
+  "auto_up_pct": 5,
+  "auto_up_max": 1000,
+  "max_up_pct": 20,
+  "reasons": {
+   "better_offer": "Customer has a better offer",
+   "hesitant": "Customer is unsure or not answering",
+   "other": "Other"
+  }
+ },
+ "cancel_reasons": {
+  "price_low": "Price too low",
+  "changed_mind": "Changed their mind",
+  "mismatch": "Not the booked device",
+  "locked": "Account or lock can't be removed",
+  "proof": "Can't show it is theirs",
+  "other": "Other"
+ },
+ "id_kinds": [
+  {
+   "id": "aadhaar",
+   "label": "Aadhaar"
+  },
+  {
+   "id": "pan",
+   "label": "PAN card"
+  },
+  {
+   "id": "dl",
+   "label": "Driving licence"
+  }
+ ],
+ "doc_kinds": {
+  "photo": "Profile photo",
+  "aadhaar": "Aadhaar card",
+  "pan": "PAN card",
+  "dl": "Driving licence",
+  "police": "Police verification",
+  "address": "Address proof",
+  "bank": "Bank or UPI proof",
+  "agreement": "Signed agreement",
+  "other": "Other document"
+ },
+ "levels": [
+  {
+   "label": "Bronze",
+   "daily": 4
+  },
+  {
+   "label": "Silver",
+   "daily": 6
+  },
+  {
+   "label": "Gold",
+   "daily": 8
+  },
+  {
+   "label": "Platinum",
+   "daily": 12
+  }
+ ],
+ "support": {
+  "phone": "+91 91309 99924",
+  "whatsapp": "+91 91309 99924",
+  "email": "recellosolutions@gmail.com"
+ },
+ "app": {
+  "maintenance": false,
+  "maintenance_msg": "",
+  "update": null,
+  "update_url": "",
+  "message": "",
+  "latest": ""
+ },
+ "terms": {
+  "version": 1,
+  "title": "Recello Technician Partner Terms",
+  "text": "## 1. Who these terms are for\nThese terms apply to every person who signs in to the Recello Technician app to inspect, buy and collect devices for Recello (\"you\"). By tapping \"I agree\" you accept them. If you have a separate written agreement with Recello, that agreement also applies and wins where the two differ.\n\n## 2. Your account\n- You sign in with your own mobile number and the code sent to it. Never share the code, your phone or your account with anyone.\n- Tell Recello at once if your phone is lost or someone else may have used your account.\n- Recello can switch your account off at any time, for example while it checks a complaint.\n\n## 3. Your identity and documents\n- You give Recello true details and valid documents: a photo ID (Aadhaar, PAN or driving licence), address proof and police verification where Recello asks for it.\n- Keep them up to date. Upload a new copy when one expires or changes.\n- Recello may check your documents with the issuing authority or a verification partner.\n- Carry your Recello ID card (in the app) on every visit and show it to the customer before you start.\n\n## 4. At the customer's door\n- Arrive within the booked slot. If you will be late, call the customer before the slot starts.\n- Be polite and respectful. No alcohol, smoking, tobacco or drugs before or during a visit.\n- Enter the home only if the customer invites you. Never pressure, threaten or argue with a customer.\n- Do not ask for or accept tips, gifts or favours.\n\n## 5. Prices\n- Every price comes from the Recello app. Never promise, quote or write down a price the app did not give.\n- An SMK Price can only be requested inside the app. It applies only after the app shows it as approved.\n- Never tell the customer how a price is worked out, or what Recello earns.\n- No side deals: you must never buy, or help anyone else buy, a device from a Recello customer outside the app.\n\n## 6. Customer codes and consent\n- The customer's 4-digit codes prove each step: start, agreeing to the price, receiving the money and saying no.\n- Ask for a code only at its step. Never type a code the customer did not give you, and never ask the customer to read out a code before the step.\n\n## 7. Inspection and photos\n- Inspect honestly and record what you really find. Every price cut must have its own true photo, taken during that visit.\n- Never reuse, edit or borrow photos. Never change, hide or tamper with an IMEI, label or part.\n- If the device is locked, reported stolen, blacklisted or not the customer's own, do not buy it. End the visit in the app.\n\n## 8. Payments\n- Pay the customer the amount shown in the app, in full, before the device leaves their hand, by cash or UPI only.\n- Record every payment in the app with the correct UPI reference. Follow the cash limit set by Recello.\n- Never take a device to pay later, and never ask the customer to pay you anything.\n- Money Recello gives you for purchases belongs to Recello. Account for it every day as Recello asks.\n\n## 9. Customer data and privacy\n- Use the customer's name, number and address only for that pickup. Never copy, save, share or contact them for anything else.\n- Never open, read, copy or keep any photos, messages, accounts or files on a customer's device.\n- Help the customer sign out of their accounts and reset the device in front of them before you pack it.\n- Recello processes your and the customer's personal data as described in its privacy policy and as Indian law requires.\n\n## 10. Devices in your care\n- Pack every bought device in a sealed Recello bag with its bag number recorded in the app.\n- Hand devices to Recello at the time and place Recello tells you. You are responsible for a device from the moment you pay for it until Recello receives it.\n- A device lost, damaged or swapped while in your care may be recovered from your points or payouts, after Recello tells you the reason.\n\n## 11. Points and payouts\n- You earn points for each pickup completed through the app, as shown on the pickup before you start. Unless Recello tells you otherwise in writing, 1 point equals ₹1.\n- Points are added when a paid pickup is wiped and packed, and are paid on the schedule Recello announces, after any tax deducted as the law requires.\n- Recello may hold or reverse points for a pickup that was faked, misreported, returned, found to be stolen or broke these terms, and will show the reason in the app.\n- Recello's records in the app decide the points earned and paid. Raise any question within 30 days.\n\n## 12. Performance and new pickups\n- Recello gives new pickups to technicians based on performance: completed pickups, arriving on time and clean visits without warnings.\n- Better performance moves you to a higher level, which gets more pickups each day and first pick of new bookings. Recello may change how levels work and will show your level in the app.\n- Recello does not promise any number of pickups or any income.\n\n## 13. Never allowed\nFraud; fake or reused photos or details; buying a stolen, locked or blacklisted device; tampering with an IMEI; stealing a customer's data; keeping or swapping a device or money; side deals; harassment or abuse of any kind. Any of these ends your work with Recello at once. Recello may recover its loss and report the matter to the police.\n\n## 14. Safety\n- Follow traffic rules and wear a helmet on two-wheelers. Do not carry more cash than Recello allows.\n- If you feel unsafe at a visit, leave and call Recello. Your safety comes before any pickup.\n\n## 15. Confidential information\nRecello's prices, price lists, processes, app screens, customer details and business information are confidential. Do not share them, post them or take screenshots for anyone outside Recello, during or after your work with Recello.\n\n## 16. Your status\nYou work with Recello as an independent service partner, not as an employee, unless a written agreement signed by Recello says otherwise. You are responsible for your own taxes, vehicle, phone and travel.\n\n## 17. Suspension and ending\nRecello may suspend or end your access at any time, at once if you break these terms. You may stop at any time by telling Recello. When your work ends, return all devices, bags, money and Recello material in your care, and settle any open pickups.\n\n## 18. Changes to these terms\nRecello may change these terms. The new version appears in the app, and you must accept it before your next pickup. If you do not agree, stop using the app and tell Recello.\n\n## 19. Law and disputes\nThese terms are governed by the laws of India. Any dispute goes first to Recello support; if it is not settled, the courts in the city of Recello's registered office decide it.\n\nRecello – All Rights Reserved."
+ }
+}

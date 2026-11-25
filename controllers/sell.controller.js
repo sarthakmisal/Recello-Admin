@@ -48,7 +48,17 @@ exports.uploadImage = async (req, res) => {
 };
 
 exports.getQuestionsByModel = async (req, res) => {
-    const data = await sellService.getQuestionsByModel(req.params);
+    const data = await sellService.getQuestionsByModel(req.params, req.query);
+    res.status(200).json(data);
+};
+
+exports.getQuestionScope = async (req, res) => {
+    const data = await sellService.getQuestionScope(req.params.id);
+    res.status(200).json(data);
+};
+
+exports.setQuestionScope = async (req, res) => {
+    const data = await sellService.setQuestionScope(req.params.id, req.body);
     res.status(200).json(data);
 };
 

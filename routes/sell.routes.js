@@ -16,6 +16,9 @@ router.get('/questions', sellController.getQuestions);
 router.get('/question-contexts', sellController.getQuestionContexts);
 router.get('/questions/:modelSlug', sellController.getQuestionsByModel);
 router.get('/questions/category/:category_id', sellController.getQuestionsByCategory);
+// Which brands / models a question is asked for (empty = all)
+router.get('/questions/:id/scope', sellController.getQuestionScope);
+router.put('/questions/:id/scope', authMiddleware, reqBody, sellController.setQuestionScope);
 router.post('/questions', reqBody, sellController.createQuestion);
 router.put('/questions/:id', reqBody, sellController.updateQuestion);
 router.delete('/questions/:id', sellController.deleteQuestion);
