@@ -114,6 +114,11 @@ exports.getRoles = async (req, res) => {
     res.status(200).json(data);
 }
 
+exports.getAdminDashboard = async (req, res) => {
+    const data = await require('../services/dashboard.service').getAdminDashboard(req.query);
+    res.status(200).json(data);
+}
+
 exports.getDashboardSummary = async (req, res) => {
     const data = await systemService.getDashboardSummary();
     res.status(200).json(data);

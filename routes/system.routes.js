@@ -60,6 +60,8 @@ router.get('/get_roles', systemController.getRoles)
 
 // Dashboard
 router.get('/dashboard_summary', systemController.getDashboardSummary)
+// the admin panel's dashboard screen (orders, pickups, to do, pickups and cancel ratio)
+router.get('/admin_dashboard', authMiddleware, systemController.getAdminDashboard)
 
 router.get('/quick-sell', systemController.getQuickSell)
 router.post('/quick-sell', reqBody, systemController.createQuickSell)
