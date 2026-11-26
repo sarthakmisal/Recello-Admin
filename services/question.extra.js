@@ -63,7 +63,7 @@ async function enrich(byQ) {
         if (batt.size) {
             const or = await pool.query(
                 `SELECT id, question_id, min_value, price_deduction FROM sell_question_options
-                  WHERE question_id = ANY($1::bigint[]) ORDER BY min_value DESC NULLS LAST, id`, [[...batt]]);
+                  WHERE question_id = ANY($1::bigint[]) AND is_active IS NOT FALSE ORDER BY min_value DESC NULLS LAST, id`, [[...batt]]);
             for (const id of batt) { const q = by.get(id); q.type = 'battery'; q.options = []; q.bands = []; q.unsure = 0; }
             for (const o of or.rows) {
                 const q = by.get(String(o.question_id));

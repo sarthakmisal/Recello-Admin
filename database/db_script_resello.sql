@@ -246,7 +246,8 @@ BEGIN;
 		price_deduction NUMERIC(10,2) DEFAULT 0,  -- PERCENT of the base price taken off (5 = 5%)
 		option_image_id BIGINT DEFAULT NULL REFERENCES images(id) ON DELETE SET NULL, -- optional image per option (url 'preset:<name>' = built-in picture)
 		sort_index INT DEFAULT 1,
-		min_value INT                             -- battery question only: lowest battery % of the band (95/90/85/80/0); NULL = "Not sure"
+		min_value INT,                            -- battery question only: lowest battery % of the band (95/90/85/80/0); NULL = "Not sure"
+		is_active BOOLEAN NOT NULL DEFAULT TRUE   -- answer switched off in the admin = customers don't see it
 	);
 	
 	create table sell_listings(

@@ -184,7 +184,8 @@ exports.getQuestions = async (query = {}) => {
     );
 
     const values = [];
-    let where = `WHERE que.is_active=true`;
+    // ?include_inactive=1 → the admin list also shows the questions that are switched off
+    let where = String(query.include_inactive) === '1' ? `WHERE TRUE` : `WHERE que.is_active=true`;
     if (contextId != null) {
         values.push(contextId);
         where += ` AND que.context=$${values.length}`;
@@ -198,6 +199,7 @@ exports.getQuestions = async (query = {}) => {
                     que.sort_index,
                     que.input_type,
                     que.context,
+                    que.is_active,
                     qctx.option_name context_label,
                         (
                             SELECT jsonb_agg(
@@ -208,6 +210,7 @@ exports.getQuestions = async (query = {}) => {
                                     'option_image_id', qo.option_image_id,
                                     'option_image_url', img.url,
                                     'min_value', qo.min_value,
+                                    'is_active', qo.is_active,
                                     'show',
                                     COALESCE(
                                         (
@@ -302,6 +305,7 @@ exports.getQuestionsByModel = async ({ modelSlug }, query = {}) => {
                                     'option_image_id', qo.option_image_id,
                                     'option_image_url', img.url,
                                     'min_value', qo.min_value,
+                                    'is_active', qo.is_active,
                                     'show',
                                     COALESCE(
                                         (
@@ -314,7 +318,7 @@ exports.getQuestionsByModel = async ({ modelSlug }, query = {}) => {
                             )
                             FROM sell_question_options qo
                             LEFT JOIN images img ON qo.option_image_id=img.id
-                            WHERE qo.question_id = que.id
+                            WHERE qo.question_id = que.id AND qo.is_active IS NOT FALSE
                     )
                 ) ORDER BY cq.sort_index, que.sort_index, que.id
             ) questions FROM models m
@@ -568,7 +572,7 @@ exports.getQuestionOptions = async (question_id) => {
 };
 
 exports.createQuestionOption = async (data) => {
-    const { question_id, text, price_deduction, sort_index, option_image_id, min_value, image_preset } = data;
+    const { question_id, text, price_deduction, sort_index, option_image_id, min_value, image_preset, is_active } = data;
     if (!question_id || !text) throw { status: 400, message: "question_id and text are required" };
     await QX.ensure();
 
@@ -578,16 +582,16 @@ exports.createQuestionOption = async (data) => {
     // image_preset: a built-in picture by name (e.g. "screen-crack"); min_value: battery band start (95, 90 … 0), null = "Not sure"
     const imageId = image_preset ? await QX.presetImageId(pool, image_preset) : (option_image_id ?? null);
     const result = await pool.query(
-        `INSERT INTO sell_question_options(question_id, text, price_deduction, option_image_id, sort_index, min_value)
-         VALUES ($1, $2, $3, $4, $5, $6)
-         RETURNING id, text, price_deduction, option_image_id, sort_index, min_value`,
-        [question_id, text, price_deduction || 0, imageId, sort_index || 1, min_value ?? null]
+        `INSERT INTO sell_question_options(question_id, text, price_deduction, option_image_id, sort_index, min_value, is_active)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING id, text, price_deduction, option_image_id, sort_index, min_value, is_active`,
+        [question_id, text, price_deduction || 0, imageId, sort_index || 1, min_value ?? null, is_active !== false]
     );
     return result.rows[0];
 };
 
 exports.updateQuestionOption = async (id, data) => {
-    const { text, price_deduction, sort_index, option_image_id, min_value, image_preset } = data;
+    const { text, price_deduction, sort_index, option_image_id, min_value, image_preset, is_active } = data;
     await QX.ensure();
     const hasOptionImageId = Object.prototype.hasOwnProperty.call(data || {}, 'option_image_id') || image_preset !== undefined;
     const hasMin = Object.prototype.hasOwnProperty.call(data || {}, 'min_value');
@@ -600,9 +604,10 @@ exports.updateQuestionOption = async (id, data) => {
              price_deduction=COALESCE($2, price_deduction),
              option_image_id=CASE WHEN $3 THEN $4 ELSE option_image_id END,
              sort_index=COALESCE($5, sort_index),
-             min_value=CASE WHEN $7 THEN $8::INT ELSE min_value END
+             min_value=CASE WHEN $7 THEN $8::INT ELSE min_value END,
+             is_active=COALESCE($9, is_active)
          WHERE id=$6
-         RETURNING id, text, price_deduction, option_image_id, sort_index, min_value`,
+         RETURNING id, text, price_deduction, option_image_id, sort_index, min_value, is_active`,
         [
             text || null,
             price_deduction != null ? price_deduction : null,
@@ -612,6 +617,7 @@ exports.updateQuestionOption = async (id, data) => {
             id,
             hasMin,
             hasMin ? (min_value ?? null) : null,
+            typeof is_active === 'boolean' ? is_active : null,
         ]
     );
     if (result.rowCount === 0) throw { status: 404, message: "Option not found" };
@@ -828,7 +834,7 @@ exports.getQuestionsByCategorySlug = async (category_slug, query = {}) => {
                     sqo.option_image_id, img.url option_image_url, sqo.min_value
              FROM sell_question_options sqo
              LEFT JOIN images img ON sqo.option_image_id=img.id
-             WHERE sqo.question_id=$1
+             WHERE sqo.question_id=$1 AND sqo.is_active IS NOT FALSE
              ORDER BY sqo.sort_index, sqo.id`,
             [q.id]
         );
@@ -891,7 +897,7 @@ exports.getQuestionsByCategorySlug = async (category_slug, query = {}) => {
                     sqo.option_image_id, img.url option_image_url, sqo.min_value
              FROM sell_question_options sqo
              LEFT JOIN images img ON sqo.option_image_id=img.id
-             WHERE sqo.question_id=$1
+             WHERE sqo.question_id=$1 AND sqo.is_active IS NOT FALSE
              ORDER BY sqo.sort_index, sqo.id`,
             [cq.id]
         );

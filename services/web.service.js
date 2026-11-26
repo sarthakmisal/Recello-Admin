@@ -123,11 +123,12 @@ async function loadQuestions() {
     }
     const ids = [...byQ.keys()];
     if (ids.length) {
+        await QX.ensure();
         const or = await pool.query(
             `SELECT sqo.id, sqo.question_id, sqo.text, sqo.price_deduction, img.url
                FROM sell_question_options sqo
           LEFT JOIN images img ON img.id = sqo.option_image_id
-              WHERE sqo.question_id = ANY($1::int[]) ORDER BY sqo.sort_index, sqo.id`, [ids]);
+              WHERE sqo.question_id = ANY($1::int[]) AND sqo.is_active IS NOT FALSE ORDER BY sqo.sort_index, sqo.id`, [ids]);
         or.rows.forEach((o) => {
             const q = byQ.get(o.question_id);
             if (q) q.options.push({ id: String(o.id), label: String(o.text), deduct: +o.price_deduction || 0, img: QX.optImg(o.url, uploadPath), active: true });

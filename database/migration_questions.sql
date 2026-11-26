@@ -21,6 +21,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS sell_question_scope_uq
   ON sell_question_scope (question_id, COALESCE(brand_id, 0), COALESCE(model_id, 0));
 CREATE INDEX IF NOT EXISTS sell_question_scope_q ON sell_question_scope (question_id);
 
+-- 3. An answer can be switched off (admin "On" switch next to the answer). Off = customers don't see it.
+ALTER TABLE sell_question_options ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
+
 -- Nothing else is needed:
 --  * input_type 'battery' is just a new value in the existing VARCHAR column.
 --  * An option's built-in picture is an images row whose url is 'preset:<name>' (e.g. preset:screen-crack),
