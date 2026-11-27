@@ -1,0 +1,666 @@
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M3 6.5h11v9H3zM14 10h3.8l3.2 3.2v2.3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5.5h16v10.5H9.5L4 20z"/><path d="M8.5 10.5h.01M12 10.5h.01M15.5 10.5h.01"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2.6-6.4z"/><path d="M11.4 13.6L20 4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-touch" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M10.5 18.5h3"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6.5 6.5 0 0 1-6.5 6.5h-.6a6 6 0 0 1-4.7-2.3L4 14.6a1.5 1.5 0 0 1 2.3-1.9L9 15"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 9h16M9 4v16"/></symbol>
+  <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M4 9.5h4L13 5v14l-5-4.5H4z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M3.5 8h3.2l1.8-2.5h7l1.8 2.5h3.2V19h-17z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-vibe" viewBox="0 0 24 24"><rect x="8" y="3.5" width="8" height="17" rx="2"/><path d="M4.5 8v8M19.5 8v8M2 10.5v3M22 10.5v3"/></symbol>
+  <symbol id="i-move" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="14" cy="10" r="2.4"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2"/></symbol>
+  <symbol id="i-batt" viewBox="0 0 24 24"><rect x="2.5" y="7" width="17" height="10" rx="2"/><path d="M21.5 10.5v3M11.5 9l-2 3h3l-2 3"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.8"/><path d="M4.5 20.5c.9-4 3.8-6.2 7.5-6.2s6.6 2.2 7.5 6.2"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5L12 12l8.5-4.5M12 12v9"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.2"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.7M12 17v.2"/></symbol>
+  <symbol id="i-call" viewBox="0 0 24 24"><path d="M5.5 4h3.2l1.6 4-2 1.3a10.5 10.5 0 0 0 6.4 6.4l1.3-2 4 1.6v3.2a1.5 1.5 0 0 1-1.6 1.5C10.6 19.5 4.5 13.4 4 5.6A1.5 1.5 0 0 1 5.5 4z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 7l8 6 8-6"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6.5 3.5h7.5l4.5 4.5v12.5h-12z"/><path d="M13.5 3.5V8.5h5M9 12.5h6M9 16h6"/></symbol>
+  <symbol id="i-cookie" viewBox="0 0 24 24"><path d="M20.5 12.6A8.5 8.5 0 1 1 11.4 3.5a3 3 0 0 0 3.6 3.6 3 3 0 0 0 3.6 3.6 3 3 0 0 0 1.9 1.9z"/><path d="M8.5 9.5h.01M8 14.5h.01M12.5 16.5h.01M12 12h.01"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-13.5 15-14-.4 10-6 15-14 15"/><path d="M5 19c3-5 6-7.5 10-9.5"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M14 4h5v16h-5M10 16l-4-4 4-4M6 12h10"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7z"/><path d="M18.5 15.5c.3 1.8 1 2.5 2.5 2.7-1.5.3-2.2 1-2.5 2.8-.3-1.8-1-2.5-2.5-2.8 1.5-.2 2.2-.9 2.5-2.7z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M10 8.8v6.4l5.2-3.2z"/></symbol>
+  <symbol id="i-tool" viewBox="0 0 24 24"><path d="M14.5 4.5a4.5 4.5 0 0 0-4.3 5.8L4 16.5 7.5 20l6.2-6.2a4.5 4.5 0 0 0 5.8-4.3l-2.7 2.7-2.8-.5-.5-2.8z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6"/></symbol>
+  <symbol id="i-mobile" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 5.2a3.3 3.3 0 0 1 0 6.6M18 14.8c2 .7 3.2 2.4 3.5 5.2"/></symbol>
+  <symbol id="i-case" viewBox="0 0 24 24"><rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5V5h6v2.5M3.5 12.5h17"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2M6 6l1.6 1.6M16.4 16.4L18 18M6 18l1.6-1.6M16.4 7.6L18 6"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="17.5" cy="5.5" r="2.5"/><circle cx="6.5" cy="12" r="2.5"/><circle cx="17.5" cy="18.5" r="2.5"/><path d="M8.7 10.8l6.6-3.9M8.7 13.2l6.6 3.9"/></symbol>
+  <symbol id="i-recycle" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 0 1-13 5.1M4.5 12a7.5 7.5 0 0 1 13-5.1"/><path d="M17.8 3.5v3.6h-3.6M6.2 20.5v-3.6h3.6"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5zM14 6.5l3 3"/></symbol>
+</svg>
+
+<div class="refbar" id="refBar" hidden><div class="wrap promo-in"><span class="promo-t" id="refText"></span><button type="button" class="promo-x" id="refX" aria-label="Hide"><svg class="i"><use href="#i-close"/></svg></button></div></div>
+<div class="promo" id="promo" hidden><div class="wrap promo-in"><span class="promo-t" data-promo-text></span><a class="promo-a" href="#sell" hidden>Get my price</a><button type="button" class="promo-x" aria-label="Hide this offer"><svg class="i"><use href="#i-close"/></svg></button></div></div>
+<header class="top">
+  <div class="wrap top-in">
+    <a class="logo" href="#top" aria-label="Recello home"><span class="logo-word" role="img" aria-label="Recello"></span></a>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="#sell">Sell</a>
+      <a href="#test">Phone test</a>
+      <a href="#repair">Repair</a>
+      <a href="#impact">Recycle</a>
+      <a href="#track">Track order</a>
+    </nav>
+    <div class="top-actions">
+      <button class="city-btn" id="cityBtn" type="button" aria-label="Change city"><span class="city-ic" data-city-icon></span><span class="city-name" data-city>Delhi NCR</span></button>
+      <a class="btn btn-yellow" href="#sell">Get my price</a>
+      <button type="button" class="funnel-exit" id="funnelExit">Save &amp; exit</button>
+      <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="sideMenu"><svg class="i"><use href="#i-menu"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="hero" id="top">
+  <canvas class="hero-grid" id="heroGrid" aria-hidden="true"></canvas>
+  <div class="wrap hero-in">
+    <div class="hero-copy">
+      <p class="live"><span class="dot"></span><span data-site="hero.live">Live prices and free pickup in</span> <span class="live-ic" data-city-icon></span><span data-city>Delhi NCR</span></p>
+      <h1><span class="ln"><span data-site="hero.title1">Sell smart.</span></span><span class="ln l2"><span data-site="hero.title2">Reuse better.</span></span></h1>
+      <p class="lede" data-site="hero.lede">Get an instant price for your phone or tablet. Test your phone right here in the browser, book a free doorstep pickup, and get paid in cash or UPI before our agent leaves.</p>
+      <button type="button" class="resume" id="resumeBtn" hidden></button>
+      <p class="today-chip" id="todayChip" hidden><svg class="i"><use href="#i-bolt"/></svg><span id="todayChipT"></span><span class="tl">Ends in <span class="tleft"></span></span></p>
+      <form class="hero-search" id="heroSearch" role="search" autocomplete="off">
+        <button type="button" class="hs-back" id="hsBack" aria-label="Close search"><svg class="i"><use href="#i-back"/></svg></button>
+        <svg class="i"><use href="#i-search"/></svg>
+        <input id="heroQ" type="search" enterkeyhint="search" placeholder="Search, e.g. iPhone 15" aria-label="Search your device" aria-autocomplete="list" aria-controls="heroSuggest" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <button type="button" class="hs-clear" id="hsClear" aria-label="Clear search" hidden><svg class="i"><use href="#i-close"/></svg></button>
+        <button class="btn btn-primary" type="submit" data-site="hero.button">Get my price</button>
+        <div class="suggest" id="heroSuggest" role="listbox" hidden></div>
+      </form>
+      <div class="hs-scrim" id="hsScrim" aria-hidden="true"></div>
+      <button type="button" class="detect-chip" id="heroDetect" hidden><span class="ai-badge" aria-hidden="true"><svg class="i"><use href="#i-spark"/></svg></span>Find this phone for me</button>
+      <div class="brands" id="heroBrands" hidden><p class="brands-l">Or pick your brand</p><div class="brand-row" id="brandRow"></div></div>
+      <p class="sold" id="soldFeed" hidden><span class="sold-dot" aria-hidden="true"></span><span class="sold-t" id="soldT" aria-live="off"></span></p>
+      <div class="hero-row"><div class="hero-row cat-quick" id="catQuick"></div><a class="test-link" href="#test"><svg class="i"><use href="#i-touch"/></svg>Test my phone first<svg class="i"><use href="#i-arrow"/></svg></a></div>
+      <button type="button" class="call-link" data-call="hero"><svg class="i"><use href="#i-chat"/></svg>Prefer a call? We'll call you back</button>
+      <p class="hero-rapid" id="heroRapid" hidden><svg class="i"><use href="#i-bolt"/></svg><span id="heroRapidT"></span></p>
+      <ul class="promises">
+        <li><svg class="i"><use href="#i-lock"/></svg><span><b data-site="p0.title">7-day price lock</b><span data-site="p0.text">Your quote holds while you decide.</span></span></li>
+        <li><svg class="i"><use href="#i-bolt"/></svg><span><b data-site="p1.title">Paid at your door</b><span data-site="p1.text">Cash or UPI, the moment the check passes.</span></span></li>
+        <li><svg class="i"><use href="#i-shield"/></svg><span><b data-site="p2.title">Certified data wipe</b><span data-site="p2.text">With a certificate for your records.</span></span></li>
+        <li><svg class="i"><use href="#i-truck"/></svg><span><b data-site="p3.title">Free pickup</b><span data-site="p3.text">2-hour slots, 7 days a week.</span></span></li>
+      </ul>
+    </div>
+    <div class="hero-visual" id="heroVisual" aria-hidden="true">
+      <svg class="loop" viewBox="0 0 600 600"><circle cx="300" cy="300" r="286" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.1 14"/><path class="arc-path" pathLength="1" d="M420 507.8A240 240 0 1 0 145.7 483.9" fill="none" stroke="#FAEE1C" stroke-width="40"/><path class="arc-head" d="M110 524L174 444L198 534Z" fill="#FAEE1C"/></svg>
+      <div class="stage">
+        <div class="device" id="device">
+          <div class="screen">
+            <div class="scr-top"><span>9:41</span><span class="island"></span><span>5G</span></div>
+            <div class="scr-brand"><span class="badge"><span class="rmark"></span></span>Phone test<small>● LIVE</small></div>
+            <div class="scr-dev" id="scrDev">iPhone 15 Pro · 256GB</div>
+            <div class="ring">
+              <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="#E2F4E8" stroke-width="9"/><circle cx="60" cy="60" r="52" fill="none" stroke="#009441" stroke-width="9" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="0"/></svg>
+              <div class="ring-val"><b>9/9</b><small>tests passed</small></div>
+            </div>
+            <ul class="scr-list">
+              <li><span>Touchscreen</span><b>60/60</b></li>
+              <li><span>Display</span><b>No dead pixels</b></li>
+              <li><span>Speaker</span><b>3 of 3 beeps</b></li>
+              <li><span>Camera</span><b>Clear</b></li>
+            </ul>
+            <div class="scr-offer"><small>Your offer</small><b id="scrOffer"></b><span id="scrOfferSub">Includes test bonus, locked 7 days</span></div>
+            <div class="beam"></div>
+          </div>
+        </div>
+        <div class="hud hud-1"><span class="hck"><svg class="i"><use href="#i-check"/></svg></span><span>Touchscreen<b>60 of 60 squares</b></span></div>
+        <div class="hud hud-2"><span class="hck"><svg class="i"><use href="#i-check"/></svg></span><span>Microphone<b>Clear sound</b></span></div>
+        <div class="hud hud-3"><span class="hck"><svg class="i"><use href="#i-check"/></svg></span><span>Payout<b>Cash or UPI at your door</b></span></div>
+        <div class="seal">
+          <span class="seal-ring" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><path id="sealPath" d="M60,60 m-45,0 a45,45 0 1,1 90,0 a45,45 0 1,1 -90,0"/></defs><text><textPath href="#sealPath" textLength="280" lengthAdjust="spacing">RECELLO VERIFIED · PHONE TEST · </textPath></text></svg></span>
+          <div class="seal-core"><b>9/9</b><small>PASSED</small></div>
+        </div>
+      </div>
+    </div>
+    <a class="grid-hint" href="#test"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="8" height="8" rx="2" fill="currentColor"/><rect x="11" y="1" width="8" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="1" y="11" width="8" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="11" y="11" width="8" height="8" rx="2" fill="currentColor"/></svg>Brush across the green squares. Our touchscreen test works the same way.</a>
+  </div>
+</section>
+<div class="tape-wrap"><div class="tape"><div class="ticker" aria-label="Top prices right now"><div class="ticker-track" id="ticker"></div></div></div></div>
+
+<section class="band" id="sell">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Sell</p>
+      <h2>Price your device in three steps</h2>
+      <p>Pick your device, answer a few quick questions, and see your offer before you book. Answer honestly and the price you see is the price you get.</p>
+    </div>
+    <div class="wizard" id="wizard">
+      <div class="panel wz-main">
+        <ol class="steps" id="steps"><li class="on">Device</li><li>Condition</li><li>Your offer</li><li>Pickup</li></ol>
+        <div class="wz-pane" data-pane="1">
+          <div class="q"><div class="q-label">What are you selling?</div><div class="seg" id="catTabs"></div></div>
+          <div class="q">
+            <div class="q-row"><div class="q-label">Pick your model</div><label class="mini-search"><svg class="i"><use href="#i-search"/></svg><input id="modelSearch" type="search" enterkeyhint="search" placeholder="Filter, e.g. Pro" aria-label="Filter models"></label></div>
+            <div class="chips" id="brandChips"></div>
+            <div class="chips series-chips" id="seriesChips" hidden></div>
+            <div class="model-grid" id="modelGrid"></div>
+            <p class="nolist"><span>Don't see your device?</span><button type="button" class="link-btn" data-req-open>Get a price for any model</button></p>
+          </div>
+          <div class="q"><div class="q-label">Storage and configuration</div><div class="chips" id="variantChips"></div></div>
+        </div>
+        <div class="wz-pane" data-pane="2" hidden><div class="test-cta" id="testCta" hidden><svg class="i ic"><use href="#i-touch"/></svg><p><b>Test this phone in 2 minutes</b>Pass the key checks and your offer goes up by <span data-verified>1%</span>.</p><button type="button" class="btn btn-ghost btn-sm" id="testCtaGo">Start test</button></div><div class="wz-pane" id="condForm"></div></div>
+        <div class="wz-pane" data-pane="3" hidden>
+          <div class="vault" id="vault" data-state="locked">
+            <div class="vault-card">
+              <div class="vault-head"><svg class="vault-lock" viewBox="0 0 48 48" aria-hidden="true"><path class="shackle" d="M15 22v-6a9 9 0 0 1 18 0v6"/><rect x="10" y="21" width="28" height="22" rx="6"/><path d="M24 29v6"/><circle cx="24" cy="29" r="2.4"/></svg><span class="vault-tag" id="vaultTag">Ready</span></div>
+              <p class="vault-k" id="vaultK" tabindex="-1">Your offer is ready</p>
+              <p class="vault-dev" id="vaultDev"></p>
+              <div class="vault-amt" id="vaultAmt" aria-live="polite"></div>
+              <p class="vault-ref" id="vaultRef" hidden></p>
+              <p class="vault-today" id="vaultToday" hidden></p>
+              <p class="vault-sub" id="vaultSub">Verify your mobile number to unlock it. It takes about 20 seconds.</p>
+              <p class="vault-ok" id="vaultVerified" hidden><svg class="i"><use href="#i-check"/></svg>Verified <b id="vaultPhone"></b> <button type="button" class="link-btn" id="vaultNotMe">Not you?</button></p>
+              <div class="vault-burst" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+            <ol class="otp-steps" id="otpSteps" aria-label="Unlock your price in 3 steps"><li class="on"><i>1</i>Mobile</li><li><i>2</i>Code</li><li><i>3</i>Your price</li></ol>
+            <form class="otp-step" id="otpPhoneForm" novalidate>
+              <label class="otp-h" for="otpPhone">Where should we send your code?</label>
+              <div class="otp-row"><span class="otp-ph" id="otpPhBox"><b><span class="flag" aria-hidden="true"><i></i><i></i><i></i></span>+91</b><input id="otpPhone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="98765 43210" enterkeyhint="send" aria-describedby="otpCount"><em class="otp-count" id="otpCount" aria-hidden="true">0/10</em></span><button class="btn btn-primary otp-btn" type="submit" id="otpSend">Send code<svg class="i"><use href="#i-send"/></svg></button></div>
+              <em class="err" id="otpPhoneErr"></em>
+              <ul class="otp-trust"><li><svg class="i"><use href="#i-lock"/></svg>Only for this offer</li><li><svg class="i"><use href="#i-shield"/></svg>No spam, no sharing</li><li><svg class="i"><use href="#i-chat"/></svg>Reply STOP any time</li></ul>
+              <p class="otp-note">We'll WhatsApp you about this offer and your pickup.</p>
+              <p class="otp-call">Rather talk to us? <button type="button" class="link-btn" data-call="offer">Get a call back</button></p>
+            </form>
+            <form class="otp-step" id="otpCodeForm" novalidate hidden>
+              <div class="otp-sms" aria-hidden="true"><span class="sms-ic"><svg class="i"><use href="#i-chat"/></svg></span><span class="sms-t"><small>Messages · now</small><b>RECELLO</b><span id="otpSmsTxt">Your Recello code is <i>• • • •</i></span></span></div>
+              <p class="otp-to">Type the 6-digit code we sent to <b id="otpTo"></b> <button type="button" class="link-btn" id="otpChange">Change</button></p>
+              <div class="otp-boxes" id="otpBoxes"><input id="otpCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-label="6-digit code" enterkeyhint="done"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+              <em class="err" id="otpCodeErr"></em>
+              <p class="otp-demo" id="otpDemo" hidden></p>
+              <p class="otp-resend"><span class="otp-ring" id="otpRing" aria-hidden="true"></span>Didn't get it? <button type="button" class="link-btn" id="otpResend" disabled>Resend in 0:30</button></p>
+            </form>
+            <div class="vault-more" id="vaultMore" hidden>
+              <p class="vault-proof" id="vaultProof" hidden><span class="sold-dot" aria-hidden="true"></span><span id="vaultProofT"></span></p>
+              <section class="promise door-promise" id="doorPromise" aria-labelledby="doorPromH">
+                <h4 id="doorPromH"><svg class="i"><use href="#i-shield"/></svg>Our doorstep promise</h4>
+                <ol id="doorList"></ol>
+                <p class="promise-note" id="doorNote"></p>
+              </section>
+              <div class="beat" id="beatBox">
+                <button type="button" class="link-btn" id="beatOpen" aria-expanded="false" aria-controls="beatForm">Got a higher quote somewhere else?</button>
+                <form class="beat-form" id="beatForm" novalidate hidden>
+                  <p>Send us a screenshot of the other quote. We'll check it and call you back. We can't always match it, but we'll try.</p>
+                  <label class="shot" id="beatShotBox"><input type="file" id="beatShot" accept="image/png,image/jpeg,image/webp" aria-describedby="beatShotTip">
+                    <span class="shot-empty"><svg class="i"><use href="#i-camera"/></svg><b>Add a screenshot</b><small id="beatShotTip">A picture of the price they showed you</small></span>
+                    <span class="shot-has" hidden><img id="beatShotImg" alt="Your screenshot of the other quote"><b>Screenshot added</b><small>Tap to change it</small></span></label>
+                  <label class="fld"><span>Their price (₹)</span><input id="beatPrice" inputmode="numeric" placeholder="e.g. 33000" enterkeyhint="send"></label>
+                  <em class="err" id="beatErr"></em>
+                  <button class="btn btn-ghost" type="submit" id="beatSend">Send to Recello</button>
+                </form>
+                <p class="beat-ok" id="beatOk" hidden></p>
+              </div>
+              <div class="notnow" id="notNow">
+                <p class="nn-h"><b>Not booking today?</b>Tell us why with one tap. It helps us help you.</p>
+                <div class="nn-chips" id="nnChips" role="group" aria-label="Why not today">
+                  <button type="button" class="chip" data-nn="later" aria-pressed="false">I'll sell later</button>
+                  <button type="button" class="chip" data-nn="questions" aria-pressed="false">I have a question</button>
+                  <button type="button" class="chip" data-nn="many" aria-pressed="false">Selling more than one</button>
+                  <button type="button" class="chip" data-nn="upgrade" aria-pressed="false">Buying a new phone soon</button>
+                  <button type="button" class="chip" data-nn="just_checking" aria-pressed="false">Just checking prices</button>
+                </div>
+                <div class="nn-pane" data-nnp="upgrade" hidden><p>Tell us the day your new phone arrives. We'll pick up this one that day, so you're never without a phone.</p>
+                  <label class="fld"><span>New phone arrives on</span><input type="date" id="nnDate"></label>
+                  <button type="button" class="btn btn-ghost" data-nnsend="upgrade">Pick it up that day</button></div>
+                <div class="nn-pane" data-nnp="later" hidden><p>Phone prices usually drop every few weeks. Your <b id="nnPrice"></b> is held until <b id="nnUntil"></b>. We'll send you one WhatsApp before it ends, and none after that.</p><button type="button" class="btn btn-ghost" data-nnsend="watch">Remind me on WhatsApp</button></div>
+                <div class="nn-pane" data-nnp="questions" hidden><p>When should we call? Our own team in <span data-city>Pune</span> calls you, not a call centre.</p>
+                  <div class="nn-when" id="nnWhen"><button type="button" class="chip" data-when="asap" aria-pressed="true">As soon as you can</button><button type="button" class="chip" data-when="evening" aria-pressed="false">This evening</button><button type="button" class="chip" data-when="tomorrow" aria-pressed="false">Tomorrow morning</button><button type="button" class="chip" data-when="weekend" aria-pressed="false">At the weekend</button></div>
+                  <button type="button" class="btn btn-ghost" data-nnsend="callback">Call me back</button></div>
+                <div class="nn-pane" data-nnp="many" hidden><p>One pickup for all of them, and one combined offer. Good for families and offices.</p>
+                  <div class="two"><label class="fld"><span>How many devices</span><select id="nnCount"><option>2</option><option>3</option><option>4</option><option>5</option><option value="10">6 to 10</option><option value="20">More than 10</option></select></label><label class="fld"><span>Which ones <em>optional</em></span><input id="nnWhat" placeholder="e.g. 2 iPhones, 1 laptop" maxlength="160"></label></div>
+                  <button type="button" class="btn btn-ghost" data-nnsend="bulk">Ask for a combined offer</button></div>
+                <p class="beat-ok" id="nnOk" hidden></p>
+              </div>
+            </div>
+            <ul class="vault-why">
+              <li><svg class="i"><use href="#i-lock"/></svg><span><b>Held for 7 days</b>Once it's unlocked, price-list changes can't lower it for a week.</span></li>
+              <li><svg class="i"><use href="#i-truck"/></svg><span><b>Free pickup in <span data-city>Pune</span></b>2-hour slots, 7 days a week.</span></li>
+              <li><svg class="i"><use href="#i-shield"/></svg><span><b>Your number stays private</b>Used only for this offer and your pickup, including a few WhatsApp updates. Reply STOP any time.</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="wz-pane" data-pane="4" hidden>
+          <p class="pick-lead"><b>Last step.</b> Choose a time, then tell us where to come.</p>
+          <div class="rapid" id="rapidBox" hidden></div>
+          <div class="q slot-q"><div class="q-label">Pickup day</div><div class="chips" id="dateChips"></div></div>
+          <div class="q slot-q"><div class="q-label">Time slot</div><div class="chips" id="slotChips"></div><em class="err" id="slotErr"></em></div>
+          <div class="q"><div class="q-label">How do you want to be paid?</div><div class="pay-opts" id="payOpts"></div></div>
+          <div class="optins">
+            <label class="optin" id="videoOpt" hidden><input type="checkbox" id="pfVideo"><span><b>Video check before we come</b>A 2-minute WhatsApp video call to look at your phone first, so you both know what to expect at your door.</span></label>
+            <label class="optin"><input type="checkbox" id="pfWaOffers"><span><b>Remind me to sell my next phone</b>One WhatsApp when your next phone is worth selling. <em>A few times a year at most. Stop any time.</em></span></label>
+          </div>
+          <p class="saved-note" id="savedNote" hidden><svg class="i"><use href="#i-check"/></svg>We filled in your details from your last booking. Change anything that's different.</p>
+          <form class="form-grid" id="pickupForm" novalidate>
+            <label class="fld"><span>Full name</span><input id="pfName" autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder="As on your photo ID"><em class="err" data-err="pfName"></em></label>
+            <label class="fld"><span>Mobile number</span><input id="pfPhone" type="tel" inputmode="numeric" autocomplete="tel-national" enterkeyhint="next" placeholder="10-digit mobile"><small class="vbadge" id="pfVerified" hidden><svg class="i"><use href="#i-check"/></svg>Verified <button type="button" class="link-btn" id="pfChangeNum">Use another number</button></small><em class="err" data-err="pfPhone"></em></label>
+            <label class="fld"><span>Pincode</span><input id="pfPin" inputmode="numeric" autocomplete="postal-code" enterkeyhint="next" maxlength="6" placeholder="e.g. 411001"><em class="err" data-err="pfPin"></em></label>
+            <div class="fld full loc-fld"><span>Pickup location <em class="opt-tag">optional</em></span><div class="loc-row"><button type="button" class="btn btn-ghost btn-sm" id="pfLocBtn"><svg class="i"><use href="#i-pin"/></svg>Use my current location</button><div class="loc-search" id="pfPlaceBox" hidden></div></div><p class="loc-msg" id="pfLocMsg">Share your location so the agent can find you on Google Maps.</p></div>
+            <label class="fld full"><span>Pickup address</span><textarea id="pfAddr" rows="3" autocomplete="street-address" enterkeyhint="done" placeholder="Flat, building, street, landmark"></textarea><em class="err" data-err="pfAddr"></em></label>
+          </form>
+          <div class="door-flow"><p class="door-steps-h">What happens at your door</p>
+            <ol class="door-steps"><li><b>Agent shows ID</b><span>A verified Recello agent, on time</span></li><li><b>5-minute check</b><span>Your answers, checked with you</span></li><li><b>You decide</b><span>See the final amount first</span></li><li><b>Paid, then we leave</b><span>Cash or UPI on the spot</span></li></ol></div>
+        </div>
+        <div class="wz-pane" data-pane="5" hidden><div id="doneBox"></div></div>
+        <div class="wz-nav">
+          <button type="button" class="btn btn-ghost" id="wzBack" hidden>Back</button>
+          <button type="button" class="btn btn-primary" id="wzNext">Continue to condition <svg class="i"><use href="#i-arrow"/></svg></button>
+        </div>
+        <p class="wz-assure" id="wzAssure" hidden><svg class="i"><use href="#i-check"/></svg>Free to book. No obligation: you decide at your door.</p>
+      </div>
+      <aside class="panel quote" aria-live="polite">
+        <div class="qc-dev" id="qcDev"></div>
+        <div class="qc-price"><small id="qcLbl">Up to</small><b id="qcPrice">₹0</b><p class="qc-note" id="qcNote"></p></div>
+        <div class="qc-perks">
+          <div><svg class="i"><use href="#i-lock"/></svg>Locked for 7 days after you book</div>
+          <div><svg class="i"><use href="#i-truck"/></svg>Free pickup in <span data-city>Delhi NCR</span></div>
+          <div><svg class="i"><use href="#i-shield"/></svg>Certified data wipe included</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="band band-mint" id="test">
+  <div class="wrap">
+    <button type="button" class="btn btn-primary test-back" id="testBack" hidden><svg class="i" style="transform:scaleX(-1)"><use href="#i-arrow"/></svg>Back to my offer</button>
+    <div class="sec-head">
+      <p class="eyebrow">Phone test</p>
+      <h2>Test your phone in about 2 minutes</h2>
+      <p>Open this page on the phone you're selling. Nine quick checks cover the touchscreen, display, speaker, microphone, cameras, vibration, sensors and charging. Pass the key ones and your quote goes up by <span data-verified>1%</span>, and the agent's check at pickup is quicker. Nothing is recorded or uploaded; only pass or fail results are saved.</p>
+    </div>
+    <div class="lab-top">
+      <div class="panel lab-sum">
+        <div class="ring-sm"><svg viewBox="0 0 120 120"><circle class="rt" cx="60" cy="60" r="50" fill="none" stroke-width="11"/><circle class="rp" id="labRing" cx="60" cy="60" r="50" fill="none" stroke-width="11" stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="314.16"/></svg><div><b id="labDone">0/9</b><small>tests done</small></div></div>
+        <div class="sum-txt"><h3 id="labHead">Run the tests on the phone you're selling</h3><p id="labSub"></p><div class="sum-pills" id="labPills"></div></div>
+        <div class="sum-act"><button type="button" class="btn btn-primary" id="labApply" disabled>Use results in my quote</button><button type="button" class="btn btn-ghost btn-sm" id="labReset">Reset all tests</button></div>
+      </div>
+      <div class="panel dev-info" id="devInfo"></div>
+    </div>
+    <div class="tests">
+      <article class="panel tcard" id="t-touch">
+        <div class="t-head"><span class="ticon"><svg class="i"><use href="#i-touch"/></svg></span><h3>Touchscreen</h3><span class="status" data-st>Not started</span></div>
+        <p class="tdesc">Drag your finger across every square until the whole grid turns green.</p>
+        <div class="touch-frame"><div class="touch-grid" id="touchGrid" aria-label="Touch test grid"></div></div>
+        <p class="tmsg" data-msg id="touchCount">0 of 60 squares</p>
+        <div class="tfoot"><button type="button" class="btn btn-ghost btn-sm" id="touchReset">Start again</button><button type="button" class="btn btn-ghost btn-sm" data-fail="touch">Some squares won't respond</button></div>
+      </article>
+      <article class="panel tcard" id="t-multi">
+        <div class="t-head"><span class="ticon"><svg class="i"><use href="#i-hand"/></svg></span><h3>Multi-touch</h3><span class="status" data-st>Not started</span></div>
+        <p class="tdesc">Place two fingers in the box at the same time. Try three if you can.</p>
+        <div class="mt-area" id="mtArea"><span>Touch here with two fingers</span></div>
+        <p class="tmsg" data-msg>Most fingers at once: 0</p>
+        <div class="tfoot"><button type="button" class="btn btn-ghost btn-sm" data-fail="multi">Only one finger works</button><button type="button" class="btn btn-ghost btn-sm" data-skip="multi" hidden>Skip</button></div>
+      </article>
+      <article class="panel tcard" id="t-display">
+        <div class="t-head"><span class="ticon"><svg class="i"><use href="#i-sun"/></svg></span><h3>Display</h3><span class="status" data-st>Not started</span></div>
+        <p class="tdesc">The screen fills with five colours, one at a time. Look for dots that stay a different colour, lines, or patches that look brighter or darker.</p>
+        <div class="swatches" aria-hidden="true"><i style="background:#FF0000"></i><i style="background:#00FF00"></i><i style="background:#0000FF"></i><i style="background:#FFFFFF"></i><i style="background:#000000"></i></div>
+        <p class="tmsg" data-msg>Turn brightness up for the best result.</p>
+        <div class="tfoot"><button type="button" class="btn btn-primary btn-sm" id="dispStart">Start display test</button></div>
+      </article>
+      <article class="panel tcard" id="t-speaker">
+        <div class="t-head"><span class="ticon"><svg class="i"><use href="#i-speaker"/></svg></span><h3>Speaker</h3><span class="status" data-st>Not started</span></div>
+        <p class="tdesc">We play a few beeps. Count them and tap the number you heard. Turn the volume up, and on iPhone switch off silent mode.</p>
+        <div class="sp-ans" id="spAns" hidden><span class="q-label">How many beeps did you hear?</span><div class="chips" id="spChips"></div></div>
+        <p class="tmsg" data-msg></p>
+        <div class="tfoot"><button type="button" class="btn btn-primary btn-sm" id="spPlay">Play beeps</button><button type="button" class="btn btn-ghost btn-sm" data-fail="speaker">I heard nothing</button></div>
+      </article>
+      <article class="panel tcard" id="t-mic">
+        <div class="t-head"><span class="ticon"><svg class="i"><use href="#i-mic"/></svg></span><h3>Microphone</h3><span class="status" data-st>Not started</span></div>
+        <p class="tdesc">Start the test, then say "hello" or clap near the phone. The bar should jump when you make a sound.</p>
+        <div class="vu" aria-hidden="true"><i id="micLvl"></i></div>
+        <p class="tmsg" data-msg>Your browser will ask for microphone access. Nothing is recorded.</p>
+        <div class="tfoot"><button type="button" class="btn btn-primary btn-sm" id="micStart">Start microphone</button><button type="button" class="btn btn-ghost btn-sm" data-fail="mic">It doesn't pick up sound</button><button type="button" class="btn btn-ghost btn-sm" data-skip="mic" hidden>Skip</button></div>
+      </article>
+      <article class="panel tcard" id="t-camera">
+        <div class="t-head"><span class="ticon"><svg class="i"><use href="#i-camera"/></svg></span><h3>Cameras</h3><span class="status" data-st>Not started</span></div>
+        <p class="tdesc">Open each camera and check the picture is sharp, with no cracks, spots or black screen.</p>
+        <div class="cam-box"><video id="camVid" playsinline muted></video><span id="camPh">Camera preview</span></div>
+        <p class="tmsg" data-msg>Nothing is saved or uploaded.</p>
+        <div class="tfoot"><button type="button" class="btn btn-primary btn-sm" id="camBack">Back camera</button><button type="button" class="btn btn-ghost btn-sm" id="camFront">Front camera</button><button type="button" class="btn btn-primary btn-sm" data-pass="camera" hidden>Both look clear</button><button type="button" class="btn btn-ghost btn-sm" data-fail="camera" hidden>Blurry, black or cracked</button><button type="button" class="btn btn-ghost btn-sm" data-skip="camera" hidden>Skip</button></div>
+      </article>
+      <article class="panel tcard" id="t-vibration">
+        <div class="t-head"><span class="ticon"><svg class="i"><use href="#i-vibe"/></svg></span><h3>Vibration</h3><span class="status" data-st>Not started</span></div>
+        <p class="tdesc">Hold the phone, tap Vibrate, and tell us if you felt two pulses.</p>
+        <p class="tmsg" data-msg></p>
+        <div class="tfoot"><button type="button" class="btn btn-primary btn-sm" id="vibGo">Vibrate</button><button type="button" class="btn btn-primary btn-sm" data-pass="vibration" hidden>I felt it</button><button type="button" class="btn btn-ghost btn-sm" data-fail="vibration" hidden>Nothing happened</button><button type="button" class="btn btn-ghost btn-sm" data-skip="vibration" hidden>Skip</button></div>
+      </article>
+      <article class="panel tcard" id="t-motion">
+        <div class="t-head"><span class="ticon"><svg class="i"><use href="#i-move"/></svg></span><h3>Motion sensors</h3><span class="status" data-st>Not started</span></div>
+        <p class="tdesc">Tap Start, then tilt the phone left, right, forward and back. The green dot should roll around.</p>
+        <div class="level" aria-hidden="true"><i id="lvlDot"></i></div>
+        <p class="tmsg" data-msg></p>
+        <div class="tfoot"><button type="button" class="btn btn-primary btn-sm" id="motStart">Start</button><button type="button" class="btn btn-ghost btn-sm" data-fail="motion" hidden>The dot doesn't move</button><button type="button" class="btn btn-ghost btn-sm" data-skip="motion" hidden>Skip</button></div>
+      </article>
+      <article class="panel tcard" id="t-charging">
+        <div class="t-head"><span class="ticon"><svg class="i"><use href="#i-batt"/></svg></span><h3>Battery and charging</h3><span class="status" data-st>Not started</span></div>
+        <p class="tdesc">Tap Check, then plug in your charger. We detect charging automatically, which shows the port works.</p>
+        <div class="batt-row"><div class="batt" aria-hidden="true"><i id="battFill"></i></div><div><b id="battPct">—</b><small id="battState">Not checked yet</small></div></div>
+        <p class="tmsg" data-msg></p>
+        <div class="tfoot"><button type="button" class="btn btn-primary btn-sm" id="batGo">Check</button><button type="button" class="btn btn-ghost btn-sm" data-fail="charging" hidden>It won't charge</button><button type="button" class="btn btn-ghost btn-sm" data-skip="charging" hidden>Skip</button></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="how">
+  <div class="wrap how-grid">
+    <div>
+      <div class="sec-head"><p class="eyebrow">How selling works</p><h2>Quote, pickup, paid</h2></div>
+      <ol class="flow">
+        <li><b>Get your price</b><span>Pick your model and answer a few questions, or run the phone test. The price updates as you go and stays locked for 7 days.</span></li>
+        <li><b>We come to you</b><span>Choose a 2-hour slot. A verified agent checks your device in about 10 minutes, faster if you've passed the phone test.</span></li>
+        <li><b>Get paid on the spot</b><span>Cash in your hand or UPI on your phone, before the agent leaves. Your data is wiped, and you get a certificate.</span></li>
+      </ol>
+    </div>
+    <div class="table-wrap">
+      <table class="compare">
+        <thead><tr><th scope="col"><span hidden>Feature</span></th><th scope="col" class="us">Recello</th><th scope="col">Local shop</th><th scope="col">Classifieds listing</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Price</th><td class="us" data-label="Recello">Shown upfront, locked for 7 days</td><td data-label="Local shop">Haggled at the counter</td><td data-label="Classifieds listing">Depends on who replies</td></tr>
+          <tr><th scope="row">If the price changes</th><td class="us" data-label="Recello">You see which answer changed, and why</td><td data-label="Local shop">Haggled again</td><td data-label="Classifieds listing">Buyer bargains when you meet</td></tr>
+          <tr><th scope="row">Phone check</th><td class="us" data-label="Recello">Test it yourself first, online</td><td data-label="Local shop">Shopkeeper decides</td><td data-label="Classifieds listing">Buyer decides</td></tr>
+          <tr><th scope="row">Getting paid</th><td class="us" data-label="Recello">Cash or UPI at your door</td><td data-label="Local shop">Cash, if you visit</td><td data-label="Classifieds listing">Days to weeks</td></tr>
+          <tr><th scope="row">Your data</th><td class="us" data-label="Recello">Certified wipe and certificate</td><td data-label="Local shop">Rarely wiped</td><td data-label="Classifieds listing">Your responsibility</td></tr>
+          <tr><th scope="row">Safety</th><td class="us" data-label="Recello">ID-verified agent</td><td data-label="Local shop">You travel to them</td><td data-label="Classifieds listing">Meeting strangers</td></tr>
+          <tr><th scope="row">Damaged devices</th><td class="us" data-label="Recello">Fair price, or recycled free</td><td data-label="Local shop">Low offers</td><td data-label="Classifieds listing">Hard to sell</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="wrap reviews" id="reviews" hidden><div class="rv-head"><h3>What customers say</h3><a class="link-btn" id="rvAll" target="_blank" rel="noopener" hidden>All reviews on Google</a></div><div class="rv-list" id="rvList"></div></div>
+</section>
+
+<section class="band band-mint" id="pulse">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Sell now or wait?</p>
+      <h2>See what waiting costs you</h2>
+      <p>Resale prices slide every month and drop harder when the next model launches. Pick a device to see its projected value for the next 12 months.</p>
+    </div>
+    <div class="pulse-grid">
+      <div class="panel chart-card">
+        <div class="chart-top"><label class="q-label" for="pulseSel">Device</label><select id="pulseSel"></select></div>
+        <div class="chart-scroll"><svg id="pulseChart" viewBox="0 0 720 290" role="img" aria-label="Projected resale value over 12 months"></svg></div>
+        <p class="readout" id="pulseRead"></p>
+        <p class="assume" id="pulseAssume"></p>
+      </div>
+      <div class="tiles" id="pulseTiles"></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="repair">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Repair</p>
+      <h2>Fixed at your door, most jobs in under an hour</h2>
+      <p>Genuine-grade parts, a 6-month warranty on every part we replace, and a technician who works where you can see the device.</p>
+    </div>
+    <div class="repair-grid">
+      <div class="panel rp-main">
+        <div class="q"><div class="q-label">Your phone</div><div class="opts" id="rpDev"></div></div>
+        <div class="q"><div class="q-label">What needs fixing?</div><div class="chips" id="rpIss"></div></div>
+        <div class="q"><div class="q-label">Where?</div><div class="seg" id="rpMode"></div></div>
+      </div>
+      <aside class="panel rp-est" id="rpEst" aria-live="polite"></aside>
+    </div>
+  </div>
+</section>
+
+<section class="band band-mint" id="impact">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Recycle and impact</p>
+      <h2>What's sitting in your drawer?</h2>
+      <p>Most homes have a few old devices tucked away. Count yours to see roughly what they're worth today, and what reuse saves compared with making new ones. Devices we can't buy, we recycle free through authorised e-waste partners.</p>
+    </div>
+    <div class="impact-grid">
+      <div class="panel steppers" id="drawer"></div>
+      <div class="impact-out" id="impactOut"></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="track">
+  <div class="wrap help-grid">
+    <div>
+      <div class="sec-head">
+        <p class="eyebrow">Track order</p>
+        <h2>Where's my order?</h2>
+        <p>Enter the order number from your booking confirmation, like SMK001.</p>
+      </div>
+      <div class="panel track-card">
+        <form class="track-form" id="trackForm"><input id="trackIn" placeholder="SMK001" aria-label="Order number" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="search"><button class="btn btn-primary" type="submit">Track</button>
+          <label class="track-ph" id="trackPhBox" hidden><span>Last 4 digits of your mobile</span><input id="trackPh" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••" enterkeyhint="search"></label></form>
+        <div class="recent" id="recent"></div>
+        <div id="trackOut"></div>
+      </div>
+    </div>
+    <div class="faq" id="faq">
+      <h3>Questions people ask</h3>
+      <details open><summary>How is my price decided?</summary><p>It depends on your model, storage and the condition you tell us about in a few quick questions. You see your exact offer before you book, and the agent checks the same answers at your door.</p></details>
+      <details><summary>Can the price change at pickup?</summary><p>Only if the device is different from your answers. The agent marks which answer changed, and the new price comes from the same price list you used, so you see exactly why.</p></details>
+      <details><summary>Are there any fees?</summary><p>No. The quote, pickup, phone test and data wipe are free, and nothing is taken out of your payment.</p></details>
+      <details><summary>How fast do I get paid?</summary><p>At pickup, as soon as the check passes. You choose cash in your hand or UPI when you book.</p></details>
+      <details><summary>What happens to my data?</summary><p>Every device is erased with certified wiping software. The wipe date is on your sale receipt, which you can download from your order page. Back up first, and sign out of iCloud (Find My) or your Google account so the device isn't locked.</p></details>
+      <details><summary>What do I need at pickup?</summary><p>The device, a government photo ID such as Aadhaar, PAN, a driving licence or passport, and the purchase bill if the device is under 3 months old.</p></details>
+      <details><summary>Can I sell without the bill or box?</summary><p>Yes. The box and charger add a little to your price. The bill is needed only if the device is under 3 months old.</p></details>
+      <details><summary>My phone isn't listed. Can I still sell it?</summary><p>Yes. Tap "Don't see your device?" under the models, tell us the model, and we'll call or WhatsApp you with a price.</p></details>
+      <details><summary>I got a higher quote somewhere else</summary><p>Tap “Got a higher quote somewhere else?” on your offer screen and add a screenshot of it. We'll check it and call you back. We can't always match it, but we'll try.</p></details>
+      <details><summary>Is the phone test safe?</summary><p>Yes. The tests run only inside your browser. The camera and microphone are used live during the test and nothing is recorded or uploaded. Only the pass or fail results are saved with your booking.</p></details>
+      <details><summary>Do you buy broken or dead devices?</summary><p>Yes. Choose "Display Issues", "Cracked or Broken Screen" or "Poor" in the quote. If a device can't be reused or repaired, we recycle it for free and send you a recycling certificate.</p></details>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-cities" id="footCities"></div>
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="logo" href="#top" aria-label="Recello home"><span class="logo-word" role="img" aria-label="Recello"></span></a>
+        <p class="tagline">Sell smart reuse better</p>
+        <p data-site="foot.about">We buy, repair and recycle phones and tablets. Laptops coming soon.</p>
+        <ul class="foot-social" id="footSocial" hidden></ul>
+      </div>
+      <div><h4>Sell</h4><ul><li><a href="#sell" data-cat-link="phone">Sell phone</a></li><li><a href="#sell" data-cat-link="laptop">Sell laptop</a></li><li><a href="#sell" data-cat-link="tablet">Sell tablet</a></li><li><a href="#sell" data-cat-link="watch">Sell smartwatch</a></li></ul></div>
+      <div><h4>Services</h4><ul><li><a href="#test">Phone test</a></li><li><a href="#repair">Doorstep repair</a></li><li><a href="#impact">Free recycling</a></li><li><a href="#pulse">Sell now or wait</a></li></ul></div>
+      <div><h4>Help</h4><ul><li><a href="#track">Track order</a></li><li><a href="#faq">FAQs</a></li><li><span class="soft" data-biz="email">recellosolutions@gmail.com</span></li><li><span class="soft" data-biz="hours">9 AM–9 PM, every day</span></li></ul></div>
+    </div>
+    <div class="foot-extra">
+      <div class="fx-app"><p class="fx-k">Get the app</p><a class="play-badge" data-play href="https://play.google.com/store/search?q=recello&c=apps" target="_blank" rel="noopener"><img src="icons/google-play.png" alt="Android app on Google Play" width="168" height="47" loading="lazy" decoding="async"></a></div>
+      <div class="fx-ai"><p class="fx-k"><svg class="i"><use href="#i-spark"/></svg>Ask AI about Recello</p><div class="ai-chips" data-ai></div></div>
+      <div class="fx-hq"><p class="fx-k"><svg class="i"><use href="#i-pin"/></svg>Recello HQ</p><p class="fx-addr" data-hq-addr></p><p class="fx-con"><a data-hq-tel href="#"></a> · <a data-hq-mail href="#"></a></p></div>
+    </div>
+    <nav class="foot-legal" aria-label="Legal"><a href="#/about">About us</a><a href="#/contact">Contact</a><a href="#/privacy">Privacy policy</a><a href="#/terms">Terms &amp; conditions</a><a href="#/cookies">Cookie policy</a><a href="#/e-waste">E-waste policy</a><a href="#/delete-account">Delete my account</a></nav>
+    <div class="foot-note"><span>© 2026 Recello · recello.in</span><span data-site="foot.note">Quotes are estimates until your device is checked at pickup.</span></div>
+    <p class="foot-mega" aria-hidden="true">Reuse <span>better.</span></p>
+  </div>
+</footer>
+
+
+<div class="sm" id="sideMenu" hidden>
+  <div class="sm-scrim" data-sm-close></div>
+  <aside class="sm-panel" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="sm-top">
+      <div class="sm-bar"><span class="logo-word sm-logo" role="img" aria-label="Recello"></span><button type="button" class="sm-city" data-sm-act="city"><span data-city-icon class="city-ic"></span><span data-city>Pune</span></button><button type="button" class="sm-x" data-sm-close aria-label="Close menu"><svg class="i"><use href="#i-close"/></svg></button></div>
+      <div class="sm-hi" id="smHi"></div>
+    </div>
+    <div class="sm-scroll">
+      <div class="sm-quick">
+        <button type="button" class="sq sq-sell" data-go="sell"><svg class="i"><use href="#i-bolt"/></svg><b>Sell a phone</b><small>Price in a minute</small></button>
+        <button type="button" class="sq" data-page="orders"><svg class="i"><use href="#i-box"/></svg><b>My orders</b><small id="smOrdN">Track your pickup</small></button>
+        <button type="button" class="sq" data-go="test"><svg class="i"><use href="#i-touch"/></svg><b>Phone test</b><small>2 minutes, free</small></button>
+        <button type="button" class="sq" data-go="repair"><svg class="i"><use href="#i-tool"/></svg><b>Repair</b><small>At your door</small></button>
+      </div>
+      <nav class="sm-groups" aria-label="Menu">
+        <section><h3>Explore Recello</h3>
+          <button type="button" class="sm-row" data-go="how"><span class="sm-ic"><svg class="i"><use href="#i-play"/></svg></span><span><b>How it works</b><small>Price, pickup, paid</small></span><svg class="i sm-chev"><use href="#i-chev"/></svg></button>
+          <button type="button" class="sm-row" data-go="track"><span class="sm-ic"><svg class="i"><use href="#i-truck"/></svg></span><span><b>Track an order</b><small>With your SMK number</small></span><svg class="i sm-chev"><use href="#i-chev"/></svg></button>
+          <button type="button" class="sm-row" data-go="reviews" id="smReviews" hidden><span class="sm-ic"><svg class="i"><use href="#i-star"/></svg></span><span><b>Customer reviews</b><small>What sellers say</small></span><svg class="i sm-chev"><use href="#i-chev"/></svg></button>
+          <button type="button" class="sm-row" data-go="impact"><span class="sm-ic"><svg class="i"><use href="#i-recycle"/></svg></span><span><b>Free recycling</b><small>For anything we can't reuse</small></span><svg class="i sm-chev"><use href="#i-chev"/></svg></button>
+          <button type="button" class="sm-row" data-page="about"><span class="sm-ic"><svg class="i"><use href="#i-info"/></svg></span><span><b>About us</b><small>Our journey, from Pune</small></span><svg class="i sm-chev"><use href="#i-chev"/></svg></button>
+        </section>
+        <section><h3>Help &amp; support</h3>
+          <button type="button" class="sm-row" data-go="faq"><span class="sm-ic"><svg class="i"><use href="#i-help"/></svg></span><span><b>FAQs</b><small>Quick answers</small></span><svg class="i sm-chev"><use href="#i-chev"/></svg></button>
+          <button type="button" class="sm-row" data-page="contact"><span class="sm-ic"><svg class="i"><use href="#i-call"/></svg></span><span><b>Contact us</b><small data-biz="hours">9 AM–9 PM, every day</small></span><svg class="i sm-chev"><use href="#i-chev"/></svg></button>
+          <button type="button" class="sm-row" data-sm-act="chat"><span class="sm-ic"><svg class="i"><use href="#i-chat"/></svg></span><span><b>Chat with Cello</b><small>Our assistant, any time</small></span><svg class="i sm-chev"><use href="#i-chev"/></svg></button>
+        </section>
+        <section><h3>Legal &amp; account</h3>
+          <button type="button" class="sm-row" data-page="privacy"><span class="sm-ic"><svg class="i"><use href="#i-shield"/></svg></span><span><b>Privacy policy</b></span><svg class="i sm-chev"><use href="#i-chev"/></svg></button>
+          <button type="button" class="sm-row" data-page="terms"><span class="sm-ic"><svg class="i"><use href="#i-doc"/></svg></span><span><b>Terms &amp; conditions</b></span><svg class="i sm-chev"><use href="#i-chev"/></svg></button>
+          <button type="button" class="sm-row" data-page="cookies"><span class="sm-ic"><svg class="i"><use href="#i-cookie"/></svg></span><span><b>Cookie policy</b></span><svg class="i sm-chev"><use href="#i-chev"/></svg></button>
+          <button type="button" class="sm-row" data-page="e-waste"><span class="sm-ic"><svg class="i"><use href="#i-leaf"/></svg></span><span><b>E-waste policy</b></span><svg class="i sm-chev"><use href="#i-chev"/></svg></button>
+          <button type="button" class="sm-row" data-page="delete-account"><span class="sm-ic"><svg class="i"><use href="#i-trash"/></svg></span><span><b>Request account deletion</b></span><svg class="i sm-chev"><use href="#i-chev"/></svg></button>
+        </section>
+      </nav>
+      <div class="sm-app">
+        <a class="play-badge" data-play href="https://play.google.com/store/search?q=recello&c=apps" target="_blank" rel="noopener"><img src="icons/google-play.png" alt="Android app on Google Play" width="150" height="42" loading="lazy" decoding="async"></a>
+        <div><p class="fx-k"><svg class="i"><use href="#i-spark"/></svg>Ask AI about us</p><div class="ai-chips" data-ai></div></div>
+        <ul class="soc" data-soc hidden></ul>
+      </div>
+      <button type="button" class="sm-out" data-sm-act="logout" id="smOut" hidden><svg class="i"><use href="#i-out"/></svg>Log out</button>
+      <p class="sm-foot">Sell smart. Reuse better.</p>
+    </div>
+  </aside>
+</div>
+<div class="pg" id="pageView" role="dialog" aria-modal="true" aria-labelledby="pgTitle" hidden>
+  <header class="pg-bar"><button type="button" class="pg-btn" id="pgBack" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button><b id="pgTitle"></b><button type="button" class="pg-btn" id="pgShare" aria-label="Share this page"><svg class="i"><use href="#i-share"/></svg></button><i class="pg-prog" id="pgProg" aria-hidden="true"></i></header>
+  <div class="pg-scroll" id="pgScroll"><div class="pg-body" id="pgBody"></div></div>
+</div>
+<div class="modal" id="cityModal" role="dialog" aria-modal="true" aria-labelledby="cityTitle" hidden>
+  <div class="panel modal-card city-modal">
+    <div class="modal-head"><h3 id="cityTitle">Choose your city</h3><button type="button" class="icon-btn" data-close aria-label="Close"><svg class="i"><use href="#i-close"/></svg></button></div>
+    <p class="muted">Pickups and repairs are live in <span data-live-cities>Pune</span>. More cities are coming soon.</p>
+    <div id="cityChips"></div>
+    <div class="wait-box" id="cityWait" aria-live="polite" hidden></div>
+  </div>
+</div>
+<div class="disp" id="disp" tabindex="-1" role="dialog" aria-label="Display test" hidden>
+  <p class="disp-hint" id="dispHint"></p>
+  <div class="disp-ask" id="dispAsk" hidden>
+    <h3>Did anything look wrong?</h3>
+    <p class="muted">Dots that stayed one colour, lines, or patches that looked brighter or darker than the rest.</p>
+    <div class="row"><button type="button" class="btn btn-primary" id="dispOk">No, all clear</button><button type="button" class="btn btn-ghost" id="dispBad">Yes, I saw something</button></div>
+  </div>
+</div>
+<div class="actbar" id="actBar" aria-hidden="true"><button type="button" class="ab-back" id="abBack" aria-label="Back" hidden><svg class="i"><use href="#i-arrow"/></svg></button><div class="ab-price"><small id="abLbl">Up to</small><b id="abPrice">₹0</b></div><button type="button" class="ab-go" id="abGo">Continue <svg class="i"><use href="#i-arrow"/></svg></button></div>
+<div class="nudge" id="nudge" role="dialog" aria-modal="true" aria-labelledby="nudgeH" hidden><div class="nudge-card"><h3 id="nudgeH"><svg class="i"><use href="#i-lock"/></svg>Your offer is waiting</h3><p id="nudgeText"></p><div class="row"><button type="button" class="btn btn-primary" id="nudgeGo">See my offer</button><button type="button" class="btn btn-ghost" data-nclose>Not now</button></div></div></div>
+<div class="nudge ai-sheet" id="aiSheet" role="dialog" aria-modal="true" aria-labelledby="aiH" hidden><div class="nudge-card">
+  <button type="button" class="icon-btn call-x" data-aiclose aria-label="Close"><svg class="i"><use href="#i-close"/></svg></button>
+  <h3 id="aiH"><span class="ai-badge" aria-hidden="true"><svg class="i"><use href="#i-spark"/></svg></span><span id="aiTitle">AI photo check</span></h3>
+  <div id="aiBody"></div>
+</div></div>
+<div class="mirror" id="mirror" role="dialog" aria-modal="true" aria-label="Mirror scan" hidden>
+  <video id="mirVid" playsinline muted autoplay></video>
+  <div class="mir-white" id="mirWhite"><div class="mir-grid" aria-hidden="true"></div><button type="button" class="mir-x" data-mirclose>Cancel</button><b class="mir-count" id="mirCount">5</b><p class="mir-say" id="mirSay">Turn the screen to the mirror</p></div>
+  <div class="mir-ui" id="mirUi"><p class="mir-tip" id="mirTip">Hold the back of your phone up to the mirror. Fill the frame.</p><span class="mir-frame" aria-hidden="true"></span>
+    <div class="mir-row"><button type="button" class="btn btn-ghost mir-cancel" data-mirclose>Cancel</button><button type="button" class="mir-shoot" id="mirShoot" aria-label="Take the photo"></button><span class="mir-sp"></span></div></div>
+</div>
+<div class="nudge" id="reqSheet" role="dialog" aria-modal="true" aria-labelledby="reqH" hidden><form class="nudge-card req-form" id="reqForm" novalidate>
+  <h3 id="reqH"><svg class="i"><use href="#i-search"/></svg>Get a price for any model</h3>
+  <div class="req-form" id="rqBody">
+    <p class="muted">Tell us what you have. We'll call or WhatsApp you with a price, usually the same day.</p>
+    <div class="two"><label class="fld"><span>Brand</span><input id="rqBrand" list="rqBrands" autocapitalize="words" autocomplete="off" placeholder="e.g. Xiaomi"></label><label class="fld"><span>Storage</span><input id="rqStorage" autocomplete="off" placeholder="e.g. 128GB"></label></div>
+    <datalist id="rqBrands"><option>Xiaomi</option><option>Redmi</option><option>POCO</option><option>Vivo</option><option>iQOO</option><option>Oppo</option><option>Realme</option><option>OnePlus</option><option>Samsung</option><option>Apple</option><option>Google</option><option>Motorola</option><option>Nothing</option><option>Infinix</option><option>Tecno</option><option>Nokia</option><option>Honor</option><option>Lenovo</option><option>HP</option><option>Dell</option><option>Asus</option><option>Acer</option></datalist>
+    <label class="fld"><span>Model</span><input id="rqModel" autocapitalize="words" autocomplete="off" placeholder="e.g. Redmi Note 13 Pro" enterkeyhint="next"></label>
+    <div class="fld"><span>How is it?</span><div class="rq-cond" id="rqCond"><button type="button" class="chip" data-c="good" aria-pressed="true">Works well</button><button type="button" class="chip" data-c="issues" aria-pressed="false">Has some issues</button><button type="button" class="chip" data-c="dead" aria-pressed="false">Doesn't turn on</button></div></div>
+    <label class="fld"><span>Your mobile number</span><input id="rqPhone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="10-digit mobile" enterkeyhint="send"></label>
+    <em class="err" id="rqErr"></em>
+    <div class="row"><button class="btn btn-primary" type="submit" id="rqSend">Send</button><button type="button" class="btn btn-ghost" data-rclose>Cancel</button></div>
+  </div>
+  <div class="rq-done" id="rqDone" hidden><p id="rqDoneText"></p><button type="button" class="btn btn-primary" id="rqDoneClose" data-rclose>Done</button></div>
+</form></div>
+<div class="toast" id="toast" role="status" hidden></div>
+<div class="nudge" id="callSheet" role="dialog" aria-modal="true" aria-labelledby="callH" hidden><form class="nudge-card call-card" id="callForm" novalidate>
+  <button type="button" class="icon-btn call-x" data-cclose aria-label="Close"><svg class="i"><use href="#i-close"/></svg></button>
+  <div class="call-ask" id="callAsk" style="display:flex;flex-direction:column;gap:14px">
+    <p class="eyebrow" id="callEy" hidden>Before you go</p>
+    <h3 id="callH">Get your price on a call</h3>
+    <p class="muted" id="callP" style="margin:0">Leave your name and number and we'll call you back in a few minutes with your price and a free pickup slot.</p>
+    <p class="call-bonus" id="callBonus" hidden></p>
+    <label class="fld" for="callName"><span>Your name</span><input id="callName" autocomplete="name" autocapitalize="words" maxlength="60" placeholder="e.g. Asha Patil"></label>
+    <div class="fld"><label for="callPhone">Mobile number</label><span class="call-ph"><b>+91</b><input id="callPhone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="10-digit mobile"></span></div>
+    <input class="hp" type="text" id="callWeb" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <em class="err" id="callErr" role="alert"></em>
+    <button class="btn btn-primary" type="submit" id="callGo">Call me back <svg class="i"><use href="#i-arrow"/></svg></button>
+    <button type="button" class="btn btn-ghost" id="callStay" hidden>Continue to my price</button>
+    <p class="call-fine">We only call about selling or repairing your device. No spam, no sharing your number.</p>
+  </div>
+  <div class="call-done" id="callDone" hidden aria-live="polite">
+    <span class="ok"><svg class="i"><use href="#i-check"/></svg></span>
+    <h3 id="callDoneH">Thanks</h3>
+    <p class="muted" id="callDoneP" style="margin:0"></p>
+    <button type="button" class="btn btn-primary" id="callDoneOk" data-cclose>Keep browsing</button>
+  </div>
+</form></div>
+<div class="nudge" id="brandSheet" role="dialog" aria-modal="true" aria-labelledby="bsH" hidden><div class="nudge-card bs-card">
+  <button type="button" class="icon-btn call-x" data-bclose aria-label="Close"><svg class="i"><use href="#i-close"/></svg></button>
+  <div class="bs-head"><span class="bs-logo" id="bsLogo" hidden></span><h3 id="bsH">Pick your brand</h3></div>
+  <div class="bs-all" id="bsAll"></div>
+  <label class="bs-search" id="bsSearch"><svg class="i"><use href="#i-search"/></svg><input id="bsQ" type="search" placeholder="Search models" aria-label="Search models" autocomplete="off"></label>
+  <div class="bs-series" id="bsSeries"></div>
+  <div class="bs-grid" id="bsGrid"></div>
+  <div class="bs-var" id="bsVar" hidden>
+    <button type="button" class="link-btn" id="bsBack" style="align-self:flex-start">← All models</button>
+    <div class="bs-dev" id="bsDev"></div>
+    <p class="q-label" id="bsVarQ" style="margin:0">Which storage does it have?</p>
+    <div class="chips" id="bsVarChips"></div>
+  </div>
+  <div class="bs-quiz" id="bsQuiz" hidden>
+    <div class="bsq-top"><button type="button" class="link-btn" id="bsqBack">← Back</button><b class="bsq-count" id="bsqCount" aria-live="polite"></b></div>
+    <span class="bsq-bar" aria-hidden="true"><i id="bsqFill"></i></span>
+    <p class="bsq-dev" id="bsqDev"></p>
+    <div class="bsq-q" id="bsqQ"></div>
+    <em class="err" id="bsqErr" role="alert"></em>
+    <button type="button" class="btn btn-primary" id="bsqNext">Next <svg class="i"><use href="#i-arrow"/></svg></button>
+  </div>
+  <div class="bs-offer" id="bsOffer" hidden>
+    <div class="bsq-top"><button type="button" class="link-btn" id="bsoBack">← Change answers</button></div>
+    <div id="bsOfferSlot"></div>
+    <button type="button" class="btn btn-primary bs-book" id="bsBook" hidden>Book free pickup <svg class="i"><use href="#i-arrow"/></svg></button>
+  </div>
+  <p class="bs-empty" id="bsMiss">Don't see your model? <button type="button" class="link-btn" data-req-open>Get a price for it</button></p>
+</div></div>
+
+<div class="chat-launch" id="chatLaunch">
+  <button type="button" class="chat-hint" id="chatHint">Ask Cello what your phone is worth</button>
+  <button type="button" class="fab" id="fab" aria-label="Chat with Cello, the Recello assistant" aria-expanded="false" aria-controls="chat"><svg class="i"><use href="#i-chat"/></svg></button>
+</div>
+<section class="chat" id="chat" role="dialog" aria-label="Chat with Cello" hidden>
+  <div class="chat-head">
+    <span class="avatar"><span class="rmark"></span></span>
+    <div class="who"><b>Cello</b><small id="chatStatus">Recello assistant · instant replies</small></div>
+    <label class="ai-toggle" id="aiWrap" title="Smarter answers written by Claude" hidden><input type="checkbox" id="aiToggle" checked>AI</label>
+    <button type="button" class="icon-btn" id="chatClose" aria-label="Close chat"><svg class="i"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="chat-log" id="chatLog" aria-live="polite"></div>
+  <div class="chat-chips" id="chatChips"></div>
+  <form class="chat-input" id="chatForm" autocomplete="off"><input id="chatIn" placeholder="Ask anything, e.g. price of iPhone 14 128GB" maxlength="500" aria-label="Message Cello"><button class="send" type="submit" aria-label="Send"><svg class="i"><use href="#i-send"/></svg></button></form>
+</section>
+
+<!--RC_CATALOG-->
+<div class="ck" id="ckBar" role="region" aria-label="Cookies" hidden><p>We use cookies to keep your offer and sign-in on this device and to see which ads work. <button type="button" class="link-btn" data-page="cookies">Cookie policy</button></p><button type="button" class="btn btn-yellow btn-sm" id="ckOk">OK</button></div>
+
+
+

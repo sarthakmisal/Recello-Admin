@@ -3,8 +3,9 @@
  * The page (index.html) asks for things by name: catalog, otp_send, otp_verify, prices, unlock, create_order, track, my_orders,
  * request, waitlist_join. This file answers each one by calling the routes that already exist on the server:
  *
- *   catalog        GET  /api/product/catalog (one read-only call, all models + storage options)
- *                  GET  /api/sell/questions/:modelSlug (once per device type), GET /api/faqs/active, GET /api/system/get_brands/:cat
+ *   catalog        GET  /api/product/catalog (one call: every active model with category, series, storage and base price)
+ *                  GET  /api/system/get_brands/:cat (logos), GET /api/sell/questions/:modelSlug (once per device type), GET /api/faqs/active
+ *                  (a server without /product/catalog: /system/get_models + a per-model call, see loadStructure)
  *   otp_send       POST /api/auth/request_otp   (resend: /api/auth/resend_otp)
  *   otp_verify     POST /api/auth/verify_otp    -> access token (+ refresh cookie); POST /api/auth/refresh when it runs out
  *   prices/unlock  GET  /api/product/:brand/:model (fresh storage prices); the offer is worked out here with the same rule the
@@ -148,6 +149,7 @@
   // an image from your admin panel (stored as a file name) -> the page's relative path; the shell points it at the server
   function uploadPath(url) {
     if (!url) return '';
+    if (/^preset:[a-z0-9-]{1,30}$/.test(String(url))) return String(url);   // built-in picture of the page (admin: "Picture")
     var f = String(url).replace(/^\/+/, '').replace(/^uploads\//, '');
     if (/^https?:/i.test(f) || f.indexOf('/') >= 0 || !f) return '';
     return 'uploads/' + encodeURIComponent(f).replace(/%2E/g, '.');
@@ -183,14 +185,28 @@
     });
     var pub = function (q) {
       DED[q.id] = {};
+      var sc = q.scope || {}, battery = /battery/i.test(q.que_type || '');
       var o = {
-        id: String(q.id), title: String(q.question || ''), help: '', type: /multi/i.test(q.que_type || '') ? 'multi' : 'single',
-        cats: [cat], brands: [], models: [],
-        options: (q.options || []).map(function (x) {
+        id: String(q.id), title: String(q.question || ''), help: String(q.description || ''), type: battery ? 'battery' : /multi/i.test(q.que_type || '') ? 'multi' : 'single',
+        cats: [cat], brands: Array.isArray(sc.brands) ? sc.brands.map(String) : [], models: Array.isArray(sc.models) ? sc.models.map(String) : [],
+        options: battery ? [] : (q.options || []).map(function (x) {
           DED[q.id][x.id] = +x.deduction || 0;
           return { id: String(x.id), label: String(x.text || ''), img: uploadPath(x.option_image_url) };
         }).filter(function (x) { return x.label; })
       };
+      if (battery) {
+        // battery question: its options are the bands (min_value = lowest battery % of the band; no min_value = "Not sure")
+        var bands = [];
+        o.bands = []; o.unsure = 0; o._unsure = { id: '', deduct: 0 };
+        (q.options || []).forEach(function (x) {
+          var cut = +x.deduction || 0;
+          if (x.min_value === null || x.min_value === undefined) o._unsure = { id: String(x.id), deduct: cut };
+          else bands.push({ min: +x.min_value, deduct: cut, id: String(x.id) });
+        });
+        bands.sort(function (a, b) { return b.min - a.min; });
+        o._bands = bands;
+        o.bands = bands.map(function (b) { return { min: b.min, deduct: 0 }; });   // the cut stays on the server side of the page
+      }
       if (when[q.id]) o.when = when[q.id];
       return o;
     };
@@ -203,18 +219,18 @@
     };
     all.filter(function (q) { return !when[q.id]; }).forEach(add);
     all.forEach(add);
-    return out.filter(function (q) { return q.options.length; });
+    return out.filter(function (q) { return q.type === 'battery' ? true : q.options.length; });   // a battery question with no bands yet is still asked (no price cut)
   }
 
 
-  // ---- what is loaded when the page opens, and when
-  //   at the start (a handful of calls, all kept on the phone for hours, so a repeat visit makes almost none):
-  //     categories + brands          GET /system/get_categories/true, GET /system/get_brands/:category
-  //     the model NAMES (one call)   GET /system/get_models           (for search and the brand pages)
-  //     the questions (per type)     GET /sell/questions/:modelSlug  (one model of each device type)
-  //     FAQs                         GET /faqs/active
-  //   when a customer taps a model:
-  //     its storage options + price  GET /product/:brand/:model
+  // ---- what is loaded when the page opens, and when (all kept on the phone for hours, so a repeat visit makes almost none)
+  //   the catalogue            GET /product/catalog            every active model: category, series, storage, base price (one call, 3 h)
+  //   phone brand logos        GET /system/get_brands/:category (one call, 12 h)
+  //   the questions (per type) GET /sell/questions/:modelSlug   (one model of each device type, 12 h)
+  //   FAQs                     GET /faqs/active                 (1 h)
+  //   if the server has no /product/catalog: GET /system/get_categories/true, get_brands/:cat and get_models instead,
+  //   and a model's storage + price is read when the customer taps it
+  //   when an offer is worked out or booked: GET /product/:brand/:model reads today's price for that one model
   var M = {};            // model slug -> { slug, name, brand, brand_slug, cat, category_slug, image_url, cfgs? }
   var STRUCT = null, SITE = null;
   var HOUR = 3600e3;
@@ -246,9 +262,52 @@
     if (has('watch') && /(watch|\bband\b)/i.test(name)) return 'watch';
     return has('phone') ? 'phone' : cats[0];
   }
-  async function loadStructure() {
-    if (STRUCT) return STRUCT;
-    var cfg = await config();
+  // the whole sellable catalogue in ONE call: GET /product/catalog (active models with category, series, storage and base price).
+  // Kept on the phone for 3 hours (compact form). The price used for an offer is always read fresh (see detail()).
+  async function catalogPacked() {
+    return cached('catalog', 3 * HOUR, async function () {
+      var raw = await http('GET', '/product/catalog', undefined, { ttl: 0 });
+      var list = raw && Array.isArray(raw.models) ? raw.models : null;
+      if (!list) throw fail('The catalogue route is not on this server.', 404);
+      return list.map(function (m) {
+        return [m.id, m.slug, m.name, m.brand, m.brand_slug, m.series || '', m.category_slug, m.image_url || '',
+          (m.variants || []).map(function (v) { return [v.id, String(v.name), Math.round(+v.base_price) || 0]; })];
+      });
+    });
+  }
+  async function structFromCatalog() {
+    var packed = await catalogPacked();
+    var byCat = {}, rows = [], seen = {};
+    packed.forEach(function (p) {
+      var slug = p[1];
+      if (!slug || seen[slug] || !p[2] || !p[3] || !p[4]) return;
+      var pc = pageCat(p[6]); if (!pc) return;
+      var cfgs = (p[8] || []).filter(function (v) { return v[2] > 0; }).map(function (v) { return { id: v[0], name: v[1], price: v[2] }; });
+      if (!cfgs.length) return;
+      seen[slug] = 1;
+      var bc = byCat[pc] || (byCat[pc] = { slug: p[6], brands: [], seen: {} });
+      if (!bc.seen[p[4]]) { bc.seen[p[4]] = 1; bc.brands.push({ name: p[3], slug: p[4], url: null }); }
+      rows.push({ seq: +p[0] || 0, id: slug, slug: slug, name: String(p[2]), brand: String(p[3]), brand_slug: p[4], series: String(p[5] || ''), cat: pc, category_slug: p[6], image_url: p[7] || null, cfgs: cfgs });
+      TOP[slug] = Math.max.apply(null, cfgs.map(function (c) { return c.price; }));
+    });
+    if (!rows.length) throw fail('The catalogue has no models with a price yet.', 404);
+    // brand logos and the admin's brand order for the phone tiles: one small call
+    var ph = byCat.phone;
+    if (ph) {
+      try {
+        var gb = arr(await cached('brands:' + ph.slug, 12 * HOUR, function () { return http('GET', '/system/get_brands/' + encodeURIComponent(ph.slug), undefined, { ttl: 0 }).then(arr); }));
+        var info = {};
+        gb.forEach(function (b, i) { if (b && b.slug) info[b.slug] = { url: b.url || null, i: i }; });
+        ph.brands.forEach(function (b) { if (info[b.slug]) b.url = info[b.slug].url; });
+        ph.brands.sort(function (a, b) { return (info[a.slug] ? info[a.slug].i : 1e6) - (info[b.slug] ? info[b.slug].i : 1e6); });
+      } catch (e) { /* logos are optional */ }
+    }
+    Object.keys(byCat).forEach(function (k) { delete byCat[k].seen; });
+    rows.sort(function (x, y) { return y.seq - x.seq; });   // newest first
+    return { byCat: byCat, rows: rows };
+  }
+  // older servers without /product/catalog: the model NAMES come from GET /system/get_models, storage + price when a model is tapped
+  async function structFromModels(cfg) {
     var byCat = await cached('cats', 12 * HOUR, function () { return discover(cfg); });
     var all = await cached('models', 6 * HOUR, function () { return http('GET', '/system/get_models', undefined, { ttl: 0 }).then(arr); });
     var brandBy = {};
@@ -261,16 +320,27 @@
       var b = brandBy[String(m.brand_name || '').toLowerCase()]; if (!b) return;   // brand not on sale
       seen[m.slug] = 1;
       var pc = guessCat(b.cats, String(m.name));
-      rows.push({ seq: +m.id || 0, id: m.slug, slug: m.slug, name: String(m.name), brand: b.name, brand_slug: b.slug, cat: pc, category_slug: byCat[pc].slug, image_url: m.image_url || m.url || null });
+      rows.push({ seq: +m.id || 0, id: m.slug, slug: m.slug, name: String(m.name), brand: b.name, brand_slug: b.slug, series: '', cat: pc, category_slug: byCat[pc].slug, image_url: m.image_url || m.url || null });
     });
-    rows.sort(function (x, y) { return y.seq - x.seq; });   // newest first
+    rows.sort(function (x, y) { return y.seq - x.seq; });
+    return { byCat: byCat, rows: rows };
+  }
+  async function loadStructure() {
+    if (STRUCT) return STRUCT;
+    var cfg = await config(), st, how = 'catalogue';
+    try { st = await structFromCatalog(); }
+    catch (e) {
+      log('/product/catalog not usable (' + (e && e.message) + '), using /system/get_models instead');
+      how = 'model names'; st = await structFromModels(cfg);
+    }
+    var byCat = st.byCat, rows = st.rows;
     // questions: one device type = one set. The first model of the type that has questions.
     QBY = {}; DED = {};
     await Promise.all(Object.keys(byCat).map(async function (pc) {
       var cands = rows.filter(function (r) { return r.cat === pc; }).slice(0, 3);
       for (var i = 0; i < cands.length; i++) {
         try {
-          var raw = await cached('q:' + pc + ':' + cands[i].slug, 12 * HOUR, function () { return http('GET', '/sell/questions/' + encodeURIComponent(cands[i].slug), undefined, { ttl: 0 }); });
+          var raw = await cached('q2:' + pc + ':' + cands[i].slug, 12 * HOUR, function () { return http('GET', '/sell/questions/' + encodeURIComponent(cands[i].slug) + '?scope=all', undefined, { ttl: 0 }); });
           var list = mapQuestions(pc, raw);
           if (list.length) { QBY[pc] = list; return; }
         } catch (e) { /* try the next model */ }
@@ -279,7 +349,7 @@
     }));
     M = {}; rows.forEach(function (r) { M[r.slug] = r; });
     STRUCT = { byCat: byCat, rows: rows };
-    log('loaded: ' + Object.keys(byCat).length + ' device types, ' + rows.length + ' models (storage and prices load when a model is tapped)');
+    log('loaded from the ' + how + ': ' + Object.keys(byCat).length + ' device types, ' + rows.length + ' models');
     return STRUCT;
   }
 
@@ -319,10 +389,14 @@
     return {
       models: keep.map(function (r) {
         var photo = uploadPath(r.image_url);
+        if (r.cfgs && r.cfgs.length) {
+          var top = TOP[r.slug] || Math.max.apply(null, r.cfgs.map(function (c) { return c.price; }));
+          return { id: r.slug, cat: r.cat, brand: r.brand, name: r.name, series: r.series || '', base: gatePrices(cfg) ? 0 : top, variants: r.cfgs.map(function (c) { return [c.name, +(c.price / top).toFixed(6)]; }), img: photo, colors: [] };
+        }
         return { id: r.slug, cat: r.cat, brand: r.brand, name: r.name, series: '', base: 0, variants: [['Choose storage', 1]], img: photo, colors: [], lazy: true };
       }),
       questions: [].concat.apply([], CATS.map(function (c) { return QBY[c] || []; })).map(function (q) {
-        return { id: q.id, title: q.title, help: q.help, type: q.type, cats: q.cats, brands: [], models: [], when: q.when, options: q.options.map(function (o) { return { id: o.id, label: o.label, img: o.img }; }) };
+        return { id: q.id, title: q.title, help: q.help, type: q.type, cats: q.cats, brands: q.brands || [], models: q.models || [], when: q.when, bands: q.bands, unsure: q.unsure, options: q.options.map(function (o) { return { id: o.id, label: o.label, img: o.img }; }) };
       }),
       pricing: { verified: 1, floor: cfg.pricing.floor || {} },
       business: cfg.business, repair: cfg.repair, growth: cfg.growth, site: site, feed: [],
@@ -369,8 +443,12 @@
     return { ok: true, bases: bases };
   }
 
-  function visibleQs(cat, ans) {
-    var list = QBY[cat] || [], vis = {}, out = [];
+  // a question with brands / models set is asked only for those (same rule as the page and the server)
+  function inScope(q, m) {
+    return (!(q.brands || []).length || q.brands.some(function (b) { return b.toLowerCase() === String(m.brand).toLowerCase(); })) && (!(q.models || []).length || q.models.indexOf(m.slug) >= 0);
+  }
+  function visibleQs(cat, ans, m) {
+    var list = (QBY[cat] || []).filter(function (q) { return !m || inScope(q, m); }), vis = {}, out = [];
     list.forEach(function (q) {
       var show = !q.when || q.when.some(function (c) { return vis[c.q] && (ans[c.q] || []).some(function (id) { return c.opts.indexOf(String(id)) >= 0; }); });
       if (show) { vis[q.id] = 1; out.push(q); }
@@ -379,9 +457,25 @@
   }
   // same rule the server applies when it saves the lead: base - sum(base x % of each picked option)
   function work(m, cfg, base, ans) {
-    var qs = visibleQs(m.cat, ans || {}), cut = 0, picks = [], checks = [];
+    var qs = visibleQs(m.cat, ans || {}, m), cut = 0, picks = [], checks = [], notes = [];
     for (var i = 0; i < qs.length; i++) {
       var q = qs[i], a = Array.isArray((ans || {})[q.id]) ? ans[q.id].map(String) : [];
+      if (q.type === 'battery') {   // answer is a battery % ("87") or "unsure"; it is saved as the band it falls in
+        var v = a[0], band = null;
+        if (v === 'unsure' || /^\d{1,3}$/.test(v || '')) notes.push(q.title + ' ' + (v === 'unsure' ? 'Not sure' : v + '%'));   // the exact % goes with the pickup notes
+        if (!q._bands.length && !q._unsure.id) {   // no bands set up in the admin yet: ask it, but it changes nothing and saves nothing
+          if (v !== 'unsure' && !/^\d{1,3}$/.test(v || '')) throw fail('Answer all the questions to see your price.', 400);
+          checks.push({ q: q.title, a: [v === 'unsure' ? 'Not sure' : v + '%'] });
+          continue;
+        }
+        if (v === 'unsure') band = q._unsure.id ? q._unsure : null;
+        else if (/^\d{1,3}$/.test(v || '')) q._bands.some(function (b) { if (+v >= b.min) { band = b; return true; } return false; });
+        if (!band) throw fail('Answer all the questions to see your price.', 400);
+        cut += base * band.deduct / 100;
+        picks.push({ question_id: +q.id, options: [+band.id] });
+        checks.push({ q: q.title, a: [v === 'unsure' ? 'Not sure' : v + '%'] });
+        continue;
+      }
       var ok = a.filter(function (id) { return q.options.some(function (o) { return o.id === id; }); });
       if (q.type === 'single') ok = ok.slice(0, 1);
       if (!ok.length) throw fail('Answer all the questions to see your price.', 400);
@@ -389,7 +483,7 @@
       picks.push({ question_id: +q.id, options: ok.map(Number) });
       checks.push({ q: q.title, a: q.options.filter(function (o) { return ok.indexOf(o.id) >= 0; }).map(function (o) { return o.label; }) });
     }
-    return { price: Math.max(0, Math.round(base - cut)), answers: picks, checks: checks };
+    return { price: Math.max(0, Math.round(base - cut)), answers: picks, checks: checks, notes: notes };
   }
   async function modelFor(id, vi) {
     var m = await detail(String(id));
@@ -491,7 +585,7 @@
     // 4. the pickup
     var notes = ['Website/app booking', 'Customer: ' + name + ' ' + contact, 'Payout: ' + (str(b.payout, 20) || 'cash or UPI at the door'),
       b.device ? 'Device: ' + str(b.device, 300) : '', b.geo && +b.geo.lat ? 'Map: https://maps.google.com/?q=' + (+b.geo.lat) + ',' + (+b.geo.lng) : '', rapid ? 'RAPID pickup' : '',
-      slotLabel && !rapid ? 'Slot: ' + slotLabel : ''].filter(Boolean).join(' | ');
+      slotLabel && !rapid ? 'Slot: ' + slotLabel : ''].concat(w.notes || []).filter(Boolean).join(' | ');
     await http('POST', '/sell/pickup', { listing_id: listing.id, address_id: addrId, pickup_date: date, pickup_slot_start: slot.start, pickup_slot_end: slot.end, notes: notes }, { auth: true });
     LAST = null;
     var code = orderCode(listing.id), title = x.m.name + ' · ' + x.cfg.name;

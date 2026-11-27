@@ -114,6 +114,16 @@ exports.getRoles = async (req, res) => {
     res.status(200).json(data);
 }
 
+exports.getPickupsBoard = async (req, res) => {
+    const data = await require('../services/pickups.service').board(req.query);
+    res.status(200).json(data);
+}
+
+exports.assignPickup = async (req, res) => {
+    const data = await require('../services/pickups.service').assign(req.params.id, req.body?.to);
+    res.status(200).json(data);
+}
+
 exports.getAdminDashboard = async (req, res) => {
     const data = await require('../services/dashboard.service').getAdminDashboard(req.query);
     res.status(200).json(data);

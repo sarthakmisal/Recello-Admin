@@ -965,7 +965,8 @@ exports.createSellListing = async (data) => {
     // console.log("Creating sell listing with data:", data);
     const { user_id, category_slug, brand_slug, model_slug, config_id, answers, expected_price } = data;
 
-    if (!model_slug || !config_id || !answers || !expected_price || answers.length === 0)
+    // answers may be empty: a device whose only question is a battery question with no bands set up yet
+    if (!model_slug || !config_id || !Array.isArray(answers) || !expected_price)
         throw { status: 400, message: "model_slug, config_id, answers, and expected_price are required" };
 
     const client = await pool.connect();

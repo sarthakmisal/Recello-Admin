@@ -62,6 +62,9 @@ router.get('/get_roles', systemController.getRoles)
 router.get('/dashboard_summary', systemController.getDashboardSummary)
 // the admin panel's dashboard screen (orders, pickups, to do, pickups and cancel ratio)
 router.get('/admin_dashboard', authMiddleware, systemController.getAdminDashboard)
+// the admin panel's Pickups board: pickups by day, and give one to a technician / dealer / dealer's person
+router.get('/pickups_board', authMiddleware, systemController.getPickupsBoard)
+router.put('/pickups/:id/assign', authMiddleware, reqBody, systemController.assignPickup)
 
 router.get('/quick-sell', systemController.getQuickSell)
 router.post('/quick-sell', reqBody, systemController.createQuickSell)
