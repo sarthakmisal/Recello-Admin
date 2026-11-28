@@ -102,7 +102,7 @@ exports.verifyOTP = async (data) => {
     }
 
     const otpResult = await pool.query(
-        `UPDATE auth_otp SET attempts=attempts+1 WHERE id = $1 RETURNING phone, otp_hash, attempts-1 attempts, created_at`,
+        `UPDATE auth_otp SET attempts=attempts+1 WHERE id = $1 RETURNING phone, otp_hash, attempts-1 attempts, created_at, (created_at < NOW() - INTERVAL '10 minutes') AS expired`,
         [id]
     );
 
@@ -124,9 +124,11 @@ exports.verifyOTP = async (data) => {
     const now = new Date();
     const diffMinutes = Math.floor((now - createdAt) / 60000);
 
-    // if (diffMinutes > 9) {
-    //     throw { status: 401, message: "OTP Expired Request New" };
-    // }
+    // a code works for 10 minutes (the Play Store test phone is exempt)
+    // worked out in the database, so the server's and the database's time zones can't disagree
+    if (otpRecord.expired && otpRecord.phone !== process.env.GPLAY_STATIC_PHONE) {
+        throw { status: 401, message: "OTP Expired Request New" };
+    }
     if (otpRecord.attempts >= 6) {
         throw { status: 429, message: "Max retries Exceeded" };
     }

@@ -13,14 +13,15 @@ const storage = multer.diskStorage({
     cb(null, uploadDir)
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname)
+    // random name, extension from the checked image type
+    cb(null, Date.now() + '-' + Math.round(Math.random() * 1e9) + ({ 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif' }[file.mimetype] || '.bin'))
   }
 })
 
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    if (['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.mimetype)) {
       cb(null, true)
     } else {
       cb(new Error('Only image files allowed'))

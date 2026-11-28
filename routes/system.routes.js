@@ -90,6 +90,7 @@ router.delete('/models/:id', systemController.deleteModel)
 
 
 // SARTHAK ROUTE - REMOVE IN PROD
-router.get('/query', reqBody, systemController.sarthakQuery)
+// removed: it ran any SQL sent to it, with no sign-in
+// router.get('/query', reqBody, systemController.sarthakQuery)
 
 module.exports = [router]

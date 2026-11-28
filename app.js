@@ -8,6 +8,9 @@ const fs = require("fs");
 const path = require('path');
 
 const app = express();
+const access = require('./middlewares/access.middleware');
+// behind nginx: req.ip is the visitor's address (only proxies on this machine / network are trusted)
+app.set('trust proxy', 'loopback, linklocal, uniquelocal');
 // const allowedOrigins = [
 //   // Local/LAN dev (Vite)
 //   "http://localhost:5173",
@@ -36,12 +39,22 @@ const app = express();
 //   credentials: true
 // }));
 
+// only Recello's own sites and apps may call the API from a browser (add more in .env → CORS_ORIGINS, comma-separated)
 app.use(cors({
   origin: (origin, callback) => {
-    callback(null, true);
+    callback(null, access.originAllowed(origin));
   },
   credentials: true
 }));
+// security headers on every answer; uploads can never run as a page or script
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  // the website, the panel and the API can't be shown inside another site (click-jacking)
+  if (!req.path.startsWith('/uploads')) res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  if (req.path.startsWith('/uploads')) res.setHeader('Content-Security-Policy', "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox");
+  next();
+});
 
 const uploadsDir = path.resolve(__dirname, 'uploads');
 
@@ -113,6 +126,9 @@ app.use('/admin', express.static(adminPath, staticOptions));
 // ─────────────────────────────────────────────
 // 5. API ROUTES
 // ─────────────────────────────────────────────
+// who may call what, rate limits, sign-in lock, activity log (see middlewares/access.middleware.js)
+app.use(access.gate);
+app.use('/api/system', require('./routes/staff.routes'));
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/product', require('./routes/product.routes'));
 app.use('/api/users', require('./routes/user.routes'));

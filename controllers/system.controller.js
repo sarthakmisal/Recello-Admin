@@ -115,7 +115,7 @@ exports.getRoles = async (req, res) => {
 }
 
 exports.getPickupsBoard = async (req, res) => {
-    const data = await require('../services/pickups.service').board(req.query);
+    const data = await require('../services/pickups.service').board(req.query, req.scope?.cities || null);
     res.status(200).json(data);
 }
 
@@ -125,7 +125,7 @@ exports.assignPickup = async (req, res) => {
 }
 
 exports.getAdminDashboard = async (req, res) => {
-    const data = await require('../services/dashboard.service').getAdminDashboard(req.query);
+    const data = await require('../services/dashboard.service').getAdminDashboard(req.query, req.scope?.cities || null);
     res.status(200).json(data);
 }
 

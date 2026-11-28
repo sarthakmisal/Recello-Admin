@@ -11,6 +11,7 @@
  * A pickup that is done, cancelled or failed, or whose order is completed / cancelled, cannot be changed here.
  */
 const pool = require('../config/database');
+const store = require('./staff.store');
 
 const OPEN_PICKUP = [1, 2]; // scheduled, rescheduled
 const DONE = 7;
@@ -26,7 +27,8 @@ async function safe(sql, params, fallback) {
     }
 }
 
-exports.board = async (query = {}) => {
+// cities: null = everything (main admin); a list = a city manager's cities only
+exports.board = async (query = {}, cities = null) => {
     const from = day(query.from, null);
     const to = day(query.to, null);
     const range = from && to ? `p.pickup_date BETWEEN $1::date AND $2::date` : `p.pickup_date BETWEEN CURRENT_DATE - 1 AND CURRENT_DATE + 6`;
@@ -59,6 +61,7 @@ exports.board = async (query = {}) => {
                 AND p.status IN (${OPEN_PICKUP.join(',')}, 3)
                 AND l.status <> ${CANCELLED}
                 AND p.id = (SELECT MAX(p2.id) FROM sell_pickups p2 WHERE p2.listing_id = l.id)
+                AND ${store.citySql('l', cities)}
            ORDER BY p.pickup_date, p.pickup_slot_start, p.id`,
             params,
         ).then((r) => r.rows),
@@ -93,6 +96,7 @@ exports.board = async (query = {}) => {
     ]);
 
     const n = (x) => (x == null ? null : Number(x));
+    const inCity = (c) => !cities || cities.some((x) => x.toLowerCase() === String(c || '').toLowerCase());
     return {
         pickups: pickups.map((p) => {
             const payout = /Payout: ([^|]+)/.exec(p.notes || '');
@@ -113,8 +117,8 @@ exports.board = async (query = {}) => {
                 to: techOfDealer ? `tech:${by}` : dealer ? `dealer:${dealer}` : by ? `agent:${by}` : '',
             };
         }),
-        team: team.map((t) => ({ ...t, id: Number(t.id) })),
-        dealers: dealers.map((d) => ({
+        team: team.filter((t) => inCity(t.city)).map((t) => ({ ...t, id: Number(t.id) })),
+        dealers: dealers.filter((d) => inCity(d.city)).map((d) => ({
             ...d,
             id: Number(d.id),
             techs: dealerTechs.filter((t) => Number(t.dealer_id) === Number(d.id)).map((t) => ({ id: Number(t.id), name: t.name, phone: t.phone })),

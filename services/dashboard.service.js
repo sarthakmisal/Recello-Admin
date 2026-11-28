@@ -9,6 +9,7 @@
  * Repairs, dealer wallet recharges and follow-ups are not kept on this server: always 0.
  */
 const pool = require('../config/database');
+const store = require('./staff.store');
 
 const DONE = 7;
 const CANCELLED = 8;
@@ -34,7 +35,9 @@ async function safe(sql, params, fallback) {
     }
 }
 
-exports.getAdminDashboard = async (query = {}) => {
+// cities: null = everything (main admin); a list = a city manager's cities only
+exports.getAdminDashboard = async (query = {}, cities = null) => {
+    const LST = cities ? `(SELECT * FROM sell_listings x WHERE ${store.citySql('x', cities)})` : 'sell_listings';
     const period = RANGE[query.period] ? query.period : 'month';
     const [from, to] = RANGE[period];
     const smkWait = Math.max(1, Number(query.smk_wait_min) || 15);
@@ -46,7 +49,7 @@ exports.getAdminDashboard = async (query = {}) => {
                     COUNT(*) FILTER (WHERE l.created_at::date = CURRENT_DATE)::int AS new_today,
                     COUNT(*) FILTER (WHERE l.status = ${DONE} AND l.updated_at >= NOW() - INTERVAL '30 days')::int AS paid_n,
                     COALESCE(SUM(${PAID}) FILTER (WHERE l.status = ${DONE} AND l.updated_at >= NOW() - INTERVAL '30 days'), 0)::float AS paid_amount
-               FROM sell_listings l`,
+               FROM ${LST} l`,
             [],
             [{}],
         ),
@@ -58,7 +61,7 @@ exports.getAdminDashboard = async (query = {}) => {
                     CASE WHEN p.assigned_agent_id IS NOT NULL THEN ${PERSON('au', 'ap')}
                          WHEN l.assigned_merchant_id IS NOT NULL THEN ${PERSON('mu', 'mp')} END AS who
                FROM sell_pickups p
-               JOIN sell_listings l ON l.id = p.listing_id
+               JOIN ${LST} l ON l.id = p.listing_id
           LEFT JOIN models m ON m.id = l.model_id
           LEFT JOIN sell_model_configs c ON c.id = l.config_id
           LEFT JOIN users u ON u.id = l.user_id
@@ -75,7 +78,7 @@ exports.getAdminDashboard = async (query = {}) => {
         ),
         safe(
             `SELECT to_char(d, 'YYYY-MM-DD') AS day,
-                    (SELECT COUNT(*)::int FROM sell_listings l WHERE l.created_at::date = d) AS sell
+                    (SELECT COUNT(*)::int FROM ${LST} l WHERE l.created_at::date = d) AS sell
                FROM generate_series(CURRENT_DATE - 13, CURRENT_DATE, INTERVAL '1 day') AS g(d)
            ORDER BY d`,
             [],
@@ -83,7 +86,7 @@ exports.getAdminDashboard = async (query = {}) => {
         ),
         safe(
             `SELECT COALESCE(m.name, 'Device') AS name, COUNT(*)::int AS n
-               FROM sell_listings l LEFT JOIN models m ON m.id = l.model_id
+               FROM ${LST} l LEFT JOIN models m ON m.id = l.model_id
               WHERE l.status <> ${CANCELLED}
            GROUP BY 1 ORDER BY 2 DESC, 1 LIMIT 6`,
             [],
@@ -108,7 +111,7 @@ exports.getAdminDashboard = async (query = {}) => {
                       WHEN l.status = ${PENDING} AND np.assigned_agent_id IS NULL AND l.assigned_merchant_id IS NULL AND np.pickup_date >= CURRENT_DATE THEN 2
                       ELSE 3
                     END AS rank, np.pickup_date, np.pickup_slot_start
-               FROM sell_listings l
+               FROM ${LST} l
           LEFT JOIN nextp np ON np.listing_id = l.id
           LEFT JOIN models m ON m.id = l.model_id
           LEFT JOIN sell_model_configs c ON c.id = l.config_id
@@ -125,11 +128,17 @@ exports.getAdminDashboard = async (query = {}) => {
                 [smkWait],
                 [{ n: 0 }],
             ),
-            safe(`SELECT COUNT(DISTINCT d.tech_id)::int AS n FROM tech_docs d WHERE d.status = 'pending'`, [], [{ n: 0 }]),
+            safe(
+                `SELECT COUNT(DISTINCT d.tech_id)::int AS n FROM tech_docs d JOIN tech_profiles tp ON tp.user_id = d.tech_id
+                  WHERE d.status = 'pending' AND ($1::text[] IS NULL OR lower(tp.city) = ANY($1))`,
+                [cities ? cities.map((c) => c.toLowerCase()) : null],
+                [{ n: 0 }],
+            ),
             safe(
                 `SELECT COUNT(*)::int AS n FROM tech_profiles t
-                  WHERE t.active AND NOT EXISTS (SELECT 1 FROM tech_docs d WHERE d.tech_id = t.user_id AND d.kind = 'photo' AND d.status <> 'rejected')`,
-                [],
+                  WHERE t.active AND ($1::text[] IS NULL OR lower(t.city) = ANY($1))
+                    AND NOT EXISTS (SELECT 1 FROM tech_docs d WHERE d.tech_id = t.user_id AND d.kind = 'photo' AND d.status <> 'rejected')`,
+                [cities ? cities.map((c) => c.toLowerCase()) : null],
                 [{ n: 0 }],
             ),
         ]),
@@ -142,7 +151,7 @@ exports.getAdminDashboard = async (query = {}) => {
                FROM (SELECT DISTINCT ON (p.listing_id) p.listing_id, p.assigned_agent_id AS id
                        FROM sell_pickups p WHERE p.assigned_agent_id IS NOT NULL
                    ORDER BY p.listing_id, p.id DESC) x
-               JOIN sell_listings l ON l.id = x.listing_id
+               JOIN ${LST} l ON l.id = x.listing_id
                JOIN users u ON u.id = x.id
           LEFT JOIN user_profile up ON up.user_id = x.id
               WHERE l.created_at >= ${from} AND l.created_at < ${to}
@@ -158,7 +167,7 @@ exports.getAdminDashboard = async (query = {}) => {
                     COUNT(*) FILTER (WHERE l.status = ${DONE})::int AS done,
                     COUNT(*) FILTER (WHERE l.status = ${CANCELLED})::int AS canc,
                     COALESCE(SUM(${PAID}) FILTER (WHERE l.status = ${DONE}), 0)::float AS val
-               FROM sell_listings l
+               FROM ${LST} l
                JOIN users u ON u.id = l.assigned_merchant_id
           LEFT JOIN user_profile up ON up.user_id = u.id
               WHERE l.created_at >= ${from} AND l.created_at < ${to}
@@ -173,7 +182,7 @@ exports.getAdminDashboard = async (query = {}) => {
                     COUNT(*) FILTER (WHERE l.status = ${CANCELLED})::int AS canc,
                     COUNT(*) FILTER (WHERE l.status NOT IN (${DONE}, ${CANCELLED}))::int AS open,
                     COALESCE(SUM(${PAID}) FILTER (WHERE l.status = ${DONE}), 0)::float AS val
-               FROM sell_listings l
+               FROM ${LST} l
               WHERE l.created_at >= ${from} AND l.created_at < ${to}`,
             [],
             [{ n: 0, done: 0, canc: 0, open: 0, val: 0 }],
@@ -198,7 +207,7 @@ exports.getAdminDashboard = async (query = {}) => {
             repairs_unassigned: 0,
         },
         todo: {
-            special_price: smk[0]?.n || 0,
+            special_price: cities ? 0 : smk[0]?.n || 0,
             pickups_unassigned: pickups.filter((p) => !p.who).length,
             new_orders: K.waiting || 0,
             wallet_recharges: 0,
